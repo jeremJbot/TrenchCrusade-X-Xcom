@@ -61,3 +61,10 @@ src/main.js         point d'entrée
 npx http-server -p 8080 .
 ```
 puis ouvrir `http://localhost:8080` sur un téléphone (ou en mode appareil mobile du navigateur).
+
+
+---
+
+## Autre prototype dans ce dépôt : `dfin/` — Cockpit de la Direction financière
+
+Simulation 2D vue de dessus (style *Prison Architect*) du plateau d'une direction financière : unités en pods, mur d'écrans de pilotage, PNJ à qui parler, reportings, calendrier de gestion et missions. Données 100 % fictives. Ouvrir `dfin/index.html`. Voir [`dfin/README.md`](dfin/README.md).
