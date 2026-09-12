@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1220">
+  <title>Mur de pilotage — Direction financière</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1220'/%3E%3Crect x='4' y='6' width='11' height='8' rx='1.5' fill='%234fb3d9'/%3E%3Crect x='17' y='6' width='11' height='8' rx='1.5' fill='%233aa76d'/%3E%3Crect x='4' y='17' width='11' height='8' rx='1.5' fill='%23e07a3f'/%3E%3Crect x='17' y='17' width='11' height='8' rx='1.5' fill='%23c9a34a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="wall.css">
+</head>
+<body data-view="wall">
+  <header id="top">
+    <div class="brand"><b>SGP</b><span>Direction financière · Mur de pilotage</span></div>
+    <nav id="crumbs" aria-label="Fil d'Ariane"></nav>
+    <div class="ctx">
+      <span class="fresh"><i></i>Données au 12/09/2026 07:50 · démo (fictives)</span>
+      <button id="asof-chip" type="button" title="Date de référence (afficher / masquer la ligne de temps)"></button>
+      <label id="line-chip" title="Filtrer tout le mur par ligne (L)">Ligne <select id="line-sel" aria-label="Filtre par ligne"></select></label>
+      <div class="tools">
+        <button id="btn-search" type="button" title="Rechercher (/ ou Ctrl+K)">🔍 <span>Rechercher <kbd>/</kbd></span></button>
+        <button id="btn-wall" type="button" title="Vue mur (W)">⊞</button>
+        <button id="btn-alerts" type="button" title="Alertes (A)">⚠</button>
+        <button id="btn-cal" type="button" title="Calendrier de gestion (C)">📅</button>
+        <button id="btn-compare" type="button" title="Comparer deux écrans (X)">⫽</button>
+        <button id="btn-present" type="button" title="Mode présentation COMEX (P)">▶</button>
+        <button id="btn-save" type="button" title="Enregistrer la vue (B)">☆</button>
+        <button id="btn-full" type="button" title="Plein écran (F)">⛶</button>
+        <button id="btn-help" type="button" title="Aide clavier (?)">?</button>
+      </div>
+      <span id="clock"></span>
+    </div>
+  </header>
+
+  <main id="viewport">
+    <div id="stage"><div id="wall"></div></div>
+    <div id="minimap" aria-label="Plan du mur"></div>
+    <div id="hint"></div>
+  </main>
+
+  <aside id="inspector" class="hidden" aria-label="Détail de l'indicateur"></aside>
+
+  <aside id="drawer" class="hidden">
+    <div class="dr-head"><button type="button" class="tab" data-tab="alerts">Alertes</button><button type="button" class="tab" data-tab="calendar">Calendrier de gestion</button><button id="drawer-close" type="button" title="Fermer">✕</button></div>
+    <div id="drawer-body"></div>
+  </aside>
+
+  <footer id="timeline">
+    <button id="play" type="button" title="Rejouer l'année (Espace)">▶</button>
+    <div id="months" role="tablist" aria-label="Date de référence"></div>
+    <div id="upcoming" aria-label="Prochaines échéances"></div>
+  </footer>
+
+  <div id="palette" class="hidden">
+    <div class="pal" role="dialog" aria-label="Recherche et commandes">
+      <input id="pal-input" type="search" placeholder="Rechercher un indicateur, un écran, une alerte, une échéance, une ligne… ou une action" autocomplete="off">
+      <ul id="pal-list"></ul>
+      <div class="pal-foot"><span><kbd>↑↓</kbd> naviguer</span><span><kbd>↵</kbd> ouvrir</span><span><kbd>Échap</kbd> fermer</span></div>
+    </div>
+  </div>
+
+  <div id="compare" class="hidden">
+    <div class="cmp-head"><span>Comparer</span><select id="cmp-a"></select><span>avec</span><select id="cmp-b"></select><button id="cmp-close" type="button" title="Fermer (Échap)">✕</button></div>
+    <div class="panes"><div class="pane" id="pane-a"></div><div class="pane" id="pane-b"></div></div>
+  </div>
+
+  <div id="present" class="hidden">
+    <div class="pr-row"><button id="pr-prev" type="button" title="Précédent">‹</button><div id="pr-note"></div><button id="pr-next" type="button" title="Suivant">›</button><button id="pr-stop" type="button" title="Quitter (Échap)">✕</button></div>
+    <div class="pr-track"><div id="pr-bar"></div></div>
+  </div>
+
+  <div id="help" class="hidden">
+    <div class="help-card">
+      <h2>Navigation du mur</h2>
+      <p>Trois niveaux : le <b>mur</b> (neuf écrans), un <b>écran</b> (une unité), un <b>indicateur</b> (détail, ventilation par ligne, lecture, alertes, échéances). La date de référence et le filtre par ligne s'appliquent à tout le mur et sont conservés dans le lien.</p>
+      <div class="help-grid">
+        <div><span>Rechercher / commandes</span><span><kbd>/</kbd> <kbd>Ctrl</kbd>+<kbd>K</kbd></span></div><div><span>Vue mur</span><span><kbd>W</kbd> <kbd>0</kbd> <kbd>Échap</kbd></span></div>
+        <div><span>Ouvrir l'écran n</span><span><kbd>1</kbd>–<kbd>9</kbd></span></div><div><span>Choisir / ouvrir</span><span><kbd>↑↓←→</kbd> <kbd>↵</kbd></span></div>
+        <div><span>Écran précédent / suivant</span><span><kbd>⇧←</kbd> <kbd>⇧→</kbd></span></div><div><span>Indicateur précédent / suivant</span><span><kbd>←</kbd> <kbd>→</kbd></span></div>
+        <div><span>Mois précédent / suivant</span><span><kbd>,</kbd> <kbd>.</kbd></span></div><div><span>Rejouer l'année</span><span><kbd>Espace</kbd></span></div>
+        <div><span>Filtre ligne (cycle)</span><span><kbd>L</kbd></span></div><div><span>Alertes · Calendrier</span><span><kbd>A</kbd> <kbd>C</kbd></span></div>
+        <div><span>Présentation COMEX · Rotation</span><span><kbd>P</kbd> <kbd>R</kbd></span></div><div><span>Comparer deux écrans</span><span><kbd>X</kbd></span></div>
+        <div><span>Enregistrer la vue</span><span><kbd>B</kbd></span></div><div><span>Plein écran</span><span><kbd>F</kbd></span></div>
+        <div><span>Zoom libre</span><span>molette · pincer · glisser</span></div><div><span>Réinitialiser le zoom</span><span>double-clic · <kbd>Échap</kbd></span></div>
+      </div>
+      <button id="help-close" type="button">Fermer</button>
+    </div>
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <script src="data.js"></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -61,3 +61,16 @@ src/main.js         point d'entrée
 npx http-server -p 8080 .
 ```
 puis ouvrir `http://localhost:8080` sur un téléphone (ou en mode appareil mobile du navigateur).
+
+
+---
+
+## Autres prototypes dans ce dépôt
+
+### `dfin/wall/` — Mur de pilotage de la Direction financière
+
+Neuf dashboards zoomables (mur → écran → indicateur), palette de commandes, clavier, curseur temporel réel/prévision, filtre par ligne, alertes, calendrier de gestion, mode présentation, comparaison, vues enregistrées et liens profonds. Données fictives. Ouvrir `dfin/wall/index.html`. Voir [`dfin/wall/README.md`](dfin/wall/README.md).
+
+### `dfin/` — Cockpit 2D de la Direction financière (exploration)
+
+Simulation 2D vue de dessus (style *Prison Architect*) du plateau d'une direction financière : unités en pods, mur d'écrans de pilotage, PNJ à qui parler, reportings, calendrier de gestion et missions. Données 100 % fictives. Ouvrir `dfin/index.html`. Voir [`dfin/README.md`](dfin/README.md).

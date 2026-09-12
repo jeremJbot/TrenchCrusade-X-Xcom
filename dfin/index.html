@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1d23">
+  <title>DFIN — Cockpit de la Direction financière (SGP) · prototype 2D</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1420'/%3E%3Crect x='5' y='7' width='22' height='14' rx='2' fill='%234fb3d9'/%3E%3Crect x='12' y='23' width='8' height='3' fill='%23c9a34a'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="hud">
+    <div id="topbar">
+      <div class="brand"><span class="logo">SGP</span><span class="sub">Direction financière · Plateau F</span></div>
+      <div class="clockbox"><span class="date">ven. 12 sept. 2026</span><span id="clock">08:32</span></div>
+      <div class="tb-btns">
+        <button id="btn-notebook" title="Carnet (N)">📓</button>
+        <button id="btn-calendar" title="Calendrier de gestion (C)">📅</button>
+        <button id="btn-plan" title="Plan du plateau (M)">🗺️</button>
+        <button id="btn-help" title="Aide (H)">❓</button>
+        <button id="btn-sound" title="Son">🔊</button>
+      </div>
+    </div>
+    <div id="tracker"></div>
+    <canvas id="minimap" width="156" height="102"></canvas>
+    <div id="prompt" class="hidden"></div>
+    <div id="toasts"></div>
+    <div id="touchpad" class="hidden">
+      <div class="joy"><div class="joy-ring"></div><div class="joy-knob"></div></div>
+      <button class="act" data-act="1">E</button>
+    </div>
+  </div>
+
+  <div id="dialog" class="hidden">
+    <canvas id="portrait" width="96" height="112"></canvas>
+    <div class="dlg-main">
+      <div class="dlg-head"><span id="dlg-name"></span><span id="dlg-unit" class="chip"></span><span id="dlg-mood" class="mood"></span></div>
+      <div id="dlg-role"></div>
+      <div id="dlg-text"></div>
+      <div id="dlg-options"></div>
+    </div>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="panel-inner">
+      <div class="panel-head"><h2 id="panel-title"></h2><button id="btn-close-panel" title="Fermer (Échap)">✕</button></div>
+      <div id="panel-body"></div>
+    </div>
+  </div>
+
+  <div id="intro" class="hidden">
+    <div class="intro-card">
+      <div class="intro-tag">Prototype · données 100 % fictives</div>
+      <h1>DFIN<span>Cockpit de la Direction financière</span></h1>
+      <p>Vendredi 12 septembre 2026, 8h32. Vous êtes le <b>DAF adjoint</b> de la SGP. Le COMEX est à 11h et la Directrice financière veut une vision consolidée : trésorerie, atterrissage budgétaire, coûts à terminaison.</p>
+      <p>Parcourez le plateau, parlez aux équipes de chaque unité, consultez leurs reportings et le calendrier de gestion, et surveillez le mur d'écrans du cockpit.</p>
+      <div class="keys"><span><kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches · clic ou joystick pour se déplacer</span><span><kbd>E</kbd> parler / consulter</span><span><kbd>N</kbd> carnet · <kbd>C</kbd> calendrier · <kbd>M</kbd> plan</span></div>
+      <button id="btn-start">Entrer sur le plateau</button>
+    </div>
+  </div>
+
+  <script src="src/data.js"></script>
+  <script src="src/map.js"></script>
+  <script src="src/art.js"></script>
+  <script src="src/world.js"></script>
+  <script src="src/render.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/ui.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
