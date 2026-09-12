@@ -82,7 +82,7 @@
       const c = this.canvas;
       c.addEventListener('wheel', (e) => { e.preventDefault(); this.renderer.targetZoom = Math.max(0.8, Math.min(3, this.renderer.targetZoom * (e.deltaY > 0 ? 0.9 : 1.1))); }, { passive: false });
       let downAt = null;
-      c.addEventListener('pointerdown', (e) => { downAt = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+      c.addEventListener('pointerdown', (e) => { e.preventDefault(); downAt = { x: e.clientX, y: e.clientY, t: performance.now() }; });
       c.addEventListener('pointerup', (e) => {
         if (!downAt) return; const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y); downAt = null; if (moved > 12) return;
         if (UI.panelOpen) return; if (UI.dialogOpen) { this.endTalk(); return; }
@@ -96,11 +96,20 @@
         if (obj && obj.id) { this.walkToObject(obj); return; }
         if (this.world.walkable(tx, ty)) { const p = this.world.tileOf(this.world.player); this.world.setPath(this.world.player, this.world.findPath(p.x, p.y, tx, ty)); this.pendingTalk = null; this.pendingObj = null; }
       });
-      // pavé tactile
+      // tactile : joystick virtuel (glisser) + bouton d'action ; aucune sélection de texte
+      document.addEventListener('touchstart', (e) => { if (e.target.closest('#panel-body, #dlg-text')) return; if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+      document.addEventListener('gesturestart', (e) => e.preventDefault());
+      document.addEventListener('contextmenu', (e) => { if (!e.target.closest('#panel-body')) e.preventDefault(); });
+      this.joy = { active: false, id: null, cx: 0, cy: 0, vx: 0, vy: 0 };
       const pad = document.getElementById('touchpad'); if (pad) {
         if (window.matchMedia('(pointer: coarse)').matches) pad.classList.remove('hidden');
-        pad.querySelectorAll('[data-k]').forEach(b => { const k = b.dataset.k; const on = (e) => { e.preventDefault(); this.keys[k] = true; }; const off = (e) => { e.preventDefault(); this.keys[k] = false; }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off); });
-        pad.querySelector('[data-act]').addEventListener('pointerdown', (e) => { e.preventDefault(); if (UI.panelOpen) return; if (UI.dialogOpen) return; this.interact(); });
+        const base = pad.querySelector('.joy'), knob = pad.querySelector('.joy-knob'); const R = 34;
+        const setKnob = (dx, dy) => { knob.style.transform = `translate(${dx}px, ${dy}px)`; };
+        base.addEventListener('pointerdown', (e) => { e.preventDefault(); base.setPointerCapture(e.pointerId); const r = base.getBoundingClientRect(); this.joy.active = true; this.joy.id = e.pointerId; this.joy.cx = r.left + r.width / 2; this.joy.cy = r.top + r.height / 2; this.joy.vx = 0; this.joy.vy = 0; base.classList.add('on'); });
+        const move = (e) => { if (!this.joy.active || e.pointerId !== this.joy.id) return; e.preventDefault(); let dx = e.clientX - this.joy.cx, dy = e.clientY - this.joy.cy; const d = Math.hypot(dx, dy); if (d > R) { dx = dx / d * R; dy = dy / d * R; } setKnob(dx, dy); const dead = 6; this.joy.vx = Math.abs(dx) > dead ? dx / R : 0; this.joy.vy = Math.abs(dy) > dead ? dy / R : 0; };
+        const end = (e) => { if (e.pointerId !== this.joy.id) return; this.joy.active = false; this.joy.vx = 0; this.joy.vy = 0; setKnob(0, 0); base.classList.remove('on'); };
+        base.addEventListener('pointermove', move); base.addEventListener('pointerup', end); base.addEventListener('pointercancel', end);
+        pad.querySelector('[data-act]').addEventListener('pointerdown', (e) => { e.preventDefault(); DFIN.audio.resume(); if (UI.panelOpen) return; if (UI.dialogOpen) { this.endTalk(); return; } this.interact(); });
       }
     }
 
@@ -131,12 +140,18 @@
     }
 
     objLabel(o) {
-      return { console: 'Consulter le pupitre de pilotage', screen_l: 'Regarder l\'écran (calendrier)', screen_c: 'Regarder le mur d\'écrans', screen_r: 'Regarder l\'écran (alertes)', calendar: 'Consulter le calendrier de gestion', coffee: 'Prendre un café', vending: 'Distributeur', copier: 'Copieur', comite: 'Table du Comité', books: 'Bibliothèque' }[o.id] || (o.id.startsWith('printer_') ? 'Imprimante' : 'Examiner');
+      return { console: 'Consulter le pupitre de pilotage', screen_l: 'Regarder l\'écran (calendrier)', screen_c: 'Regarder le mur d\'écrans', screen_r: 'Regarder l\'écran (alertes)', calendar: 'Consulter le calendrier de gestion', wallcal: 'Calendrier mural BUD', coffee: 'Prendre un café', vending: 'Distributeur', copier: 'Copieur', comite: 'Table du Comité', books: 'Bibliothèque', books_fis: 'Rayonnage fiscal', racks: 'Baies serveurs — état des systèmes', minirack: 'Mini-baie du Lab', robot: 'Robot du Lab', safe: 'Coffre-fort des polices', ticker_fin: 'Écran de marché' }[o.id] || (o.id.startsWith('printer_') ? 'Imprimante' : 'Examiner');
     }
     useObject(o) {
       DFIN.audio.blip();
       if (o.id === 'console' || o.id.startsWith('screen_')) { UI.openPanel('cockpit'); return; }
       if (o.id === 'calendar') { UI.openPanel('calendar'); return; }
+      if (o.id === 'wallcal') { UI.openPanel('calendar', 'bud'); return; }
+      if (o.id === 'racks' || o.id === 'minirack') { UI.openPanel('report', 'srv'); return; }
+      if (o.id === 'robot') { UI.toast('🤖 Le robot du Lab : « J\'ai lu 1 840 factures ce matin. Aucune ne parlait de moi. »'); this.addFact('Robot du Lab', 'Assistant IA de lecture de factures : 1 840 factures traitées, 12 anomalies remontées à la comptabilité fournisseurs.'); return; }
+      if (o.id === 'safe') { UI.toast('🔒 Coffre des polices d\'assurance : TRC, RC maître d\'ouvrage, dommages-ouvrage. La combinaison est le montant de la franchise, paraît-il.'); return; }
+      if (o.id === 'ticker_fin') { UI.toast('📈 Écran de marché : mid-swap 20 ans 2,71 % · OAT 10 ans 3,12 % · spread green bond visé +38 pb. (Valeurs fictives.)'); return; }
+      if (o.id === 'books_fis') { UI.toast('📚 Code général des impôts 2026, BOFiP annoté, doctrine TVA des établissements publics. Le marque-page est à l\'article 256 B.'); return; }
       if (o.id === 'comite') { UI.openPanel('meetings'); return; }
       if (o.id === 'coffee') { this.coffees++; this.boost = 45; DFIN.audio.coffee(); const r = DFIN.pick(DFIN.RUMORS); UI.toast(`☕ <b>Café n°${this.coffees}.</b> Vitesse +25 % pendant 45 s.<br><i>Rumeur entendue : « ${r} »</i>`, 'gold'); this.addFact('Machine à café', r); return; }
       if (o.id === 'vending') { UI.toast('Le distributeur propose des barres de céréales hors de prix. Vous renoncez, pour l\'atterrissage budgétaire.'); return; }
@@ -190,6 +205,7 @@
         let vx = 0, vy = 0; const k = this.keys;
         if (k['arrowup'] || k['KeyW'] || k['z'] || k['w']) vy -= 1; if (k['arrowdown'] || k['KeyS'] || k['s']) vy += 1;
         if (k['arrowleft'] || k['KeyA'] || k['q'] || k['a']) vx -= 1; if (k['arrowright'] || k['KeyD'] || k['d']) vx += 1;
+        if (!vx && !vy && this.joy && this.joy.active) { vx = this.joy.vx; vy = this.joy.vy; }
         if (vx || vy) { moving = this.world.movePlayer(vx, vy, dt); this.pendingTalk = null; this.pendingObj = null; }
         else if (p.path) { moving = this.world.followPath(p, dt); if (!moving) { if (this.pendingTalk) { const n = this.pendingTalk; this.pendingTalk = null; if (Math.hypot(n.x - p.x, n.y - p.y) < 2.2 * T) this.talk(n); } else if (this.pendingObj) { const o = this.pendingObj; this.pendingObj = null; if (this._objNear(o, 1.5)) this.useObject(o); } } }
         p.walk = moving ? ((p.walk || 0) + dt * 2.6) % 1 : null;

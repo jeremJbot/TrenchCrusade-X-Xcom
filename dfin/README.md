@@ -8,7 +8,7 @@ Ouvrez `dfin/index.html` (ou hébergez le dossier). Aucun build, aucune dépenda
 ## Le concept
 
 - Vous incarnez le **DAF adjoint**. Vendredi 12 septembre 2026, 8h32 : le COMEX est à 11h.
-- Le plateau est un grand open space : **chaque pod est une unité** de la direction financière (Contrôle de gestion & Budget, Comptabilité & Clôture, Trésorerie & Financements, Pilotage des investissements, Fiscalité & Recettes affectées, SI Finance & Data, Contrôle interne & Risques, Cafétéria), plus le bureau de la Directrice financière et la salle du Comité.
+- Le plateau est un open space compact : **chaque pod est une unité** avec sa propre ambiance (Financement & Trésorerie, Contrôle de gestion, Consolidation & Pilotage budgétaire, Fiscalité, Assurances, Contrôle interne, Lab IA & Data, Lounge), plus le bureau de la Directrice financière, le centre de pilotage et la salle serveurs. Éclairage d'ambiance : lampes, néons, écrans, lumière des fenêtres.
 - Au nord, le **cockpit de pilotage** : un mur de trois grands écrans vivants (KPI consolidés, courbe de trésorerie, compte à rebours du COMEX, calendrier de gestion, alertes, bandeau défilant), des consoles et un pupitre.
 - On se déplace pour **parler aux collègues** (dernières infos, points de vigilance), **consulter leurs reportings** (KPI, graphiques, commentaires de gestion), le **calendrier de gestion** (septembre → décembre 2026) et la vue consolidée du cockpit.
 - Trois **missions** enchaînées (collecter des éléments auprès des unités et les rapporter) donnent un fil conducteur ; l'horloge du plateau tourne (20 s de jeu par seconde réelle).
@@ -26,7 +26,7 @@ Ouvrez `dfin/index.html` (ou hébergez le dossier). Aucun build, aucune dépenda
 | Fermer | `Échap` |
 | Zoom | molette |
 
-Sur écran tactile, un pavé directionnel et un bouton d'action apparaissent.
+Sur écran tactile, un joystick virtuel (glisser) et un bouton d'action apparaissent ; la sélection de texte est désactivée sur le plateau.
 
 ## Structure
 

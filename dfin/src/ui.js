@@ -148,14 +148,14 @@
     _cockpit(title, body) {
       title.innerHTML = '🖥️ Cockpit de pilotage — vue consolidée';
       const r = DFIN.REPORTS.pil; const g = this.game;
-      const cards = DFIN.UNITS.filter(u => !['dir', 'pil', 'caf'].includes(u.id)).map(u => { const rr = DFIN.REPORTS[u.id]; const bad = rr.alerts.filter(a => a.t === 'bad').length, warn = rr.alerts.filter(a => a.t === 'warn').length; return `<button class="ucard" data-open-report="${u.id}" style="--c:${u.color}"><div class="uc-h"><span class="chip" style="background:${u.color}">${esc(u.short)}</span>${esc(u.name)}</div><div class="uc-k">${rr.kpis.slice(0, 2).map(k => `<div><span>${esc(k.l)}</span><b>${esc(k.v)}</b></div>`).join('')}</div><div class="uc-a">${bad ? `<span class="bad">● ${bad}</span>` : ''}${warn ? `<span class="warn">● ${warn}</span>` : ''}<span class="ok">● ${rr.alerts.filter(a => a.t === 'ok').length}</span> <span class="muted">→ ouvrir le reporting</span></div></button>`; }).join('');
+      const cards = DFIN.UNITS.filter(u => !['dir', 'pil', 'caf', 'srv'].includes(u.id)).map(u => { const rr = DFIN.REPORTS[u.id]; const bad = rr.alerts.filter(a => a.t === 'bad').length, warn = rr.alerts.filter(a => a.t === 'warn').length; return `<button class="ucard" data-open-report="${u.id}" style="--c:${u.color}"><div class="uc-h"><span class="chip" style="background:${u.color}">${esc(u.short)}</span>${esc(u.name)}</div><div class="uc-k">${rr.kpis.slice(0, 2).map(k => `<div><span>${esc(k.l)}</span><b>${esc(k.v)}</b></div>`).join('')}</div><div class="uc-a">${bad ? `<span class="bad">● ${bad}</span>` : ''}${warn ? `<span class="warn">● ${warn}</span>` : ''}<span class="ok">● ${rr.alerts.filter(a => a.t === 'ok').length}</span> <span class="muted">→ ouvrir le reporting</span></div></button>`; }).join('');
       body.innerHTML = `<div class="ticker"><span>${DFIN.TICKER.join('  ◆  ')}  ◆  ${DFIN.TICKER.join('  ◆  ')}</span></div>
         <div class="cockpit-head"><div><div class="muted">Horloge plateau</div><div class="big">${g.clockString()}</div></div><div><div class="muted">COMEX dans</div><div class="big gold">${g.countdownTo(11, 0)}</div></div><div><div class="muted">Flux SAP</div><div class="big ok">OK · 07:50</div></div></div>
         ${this._kpis(r.kpis)}
-        <div class="two"><div class="chart-wrap"><div class="chart-title">${esc(DFIN.REPORTS.tre.chart.title)}</div><canvas class="chart c1" width="900" height="300"></canvas></div><div class="chart-wrap"><div class="chart-title">${esc(DFIN.REPORTS.inv.chart.title)}</div><canvas class="chart c2" width="900" height="300"></canvas></div></div>
+        <div class="two"><div class="chart-wrap"><div class="chart-title">${esc(DFIN.REPORTS.fin.chart.title)}</div><canvas class="chart c1" width="900" height="300"></canvas></div><div class="chart-wrap"><div class="chart-title">${esc(DFIN.REPORTS.inv.chart.title)}</div><canvas class="chart c2" width="900" height="300"></canvas></div></div>
         <h3>Unités</h3><div class="ucards">${cards}</div>
         <h3>Alertes consolidées</h3>${this._alerts(r.alerts)}`;
-      this.drawChart(body.querySelector('.c1'), DFIN.REPORTS.tre.chart); this.drawChart(body.querySelector('.c2'), DFIN.REPORTS.inv.chart);
+      this.drawChart(body.querySelector('.c1'), DFIN.REPORTS.fin.chart); this.drawChart(body.querySelector('.c2'), DFIN.REPORTS.inv.chart);
       g.onCockpitViewed();
     },
 
@@ -169,8 +169,8 @@
 
     _plan(title, body) {
       title.innerHTML = '🗺️ Plan du plateau F';
-      body.innerHTML = `<p class="lead">Chaque pod de l'open space est une unité de la direction financière. Le cockpit (mur d'écrans) est au nord, encadré par le bureau de la Directrice financière et la salle du Comité. Le <b>kiosque du calendrier de gestion</b> est au centre de l'open space.</p>
-        <div class="units">${DFIN.UNITS.map(u => `<div class="unit" style="--c:${u.color}"><div class="u-h"><span class="chip" style="background:${u.color}">${esc(u.short)}</span><b>${esc(u.name)}</b></div><div class="muted small">${esc(u.desc)}</div><div class="u-p">${DFIN.PEOPLE.filter(p => p.unit === u.id).map(p => esc(p.name.split(' ')[0])).join(' · ')}</div>${DFIN.REPORTS[u.id] && u.id !== 'caf' ? `<button class="mini" data-open-report="${u.id}">reporting</button>` : ''}</div>`).join('')}</div>`;
+      body.innerHTML = `<p class="lead">Chaque pod de l'open space est une unité de la direction financière, avec sa propre ambiance. Le centre de pilotage (mur d'écrans) est au nord, entre le bureau de la Directrice financière et la salle serveurs. Le <b>kiosque du calendrier de gestion</b> est au centre de l'open space.</p>
+        <div class="units">${DFIN.UNITS.map(u => `<div class="unit" style="--c:${u.color}"><div class="u-h"><span class="chip" style="background:${u.color}">${esc(u.short)}</span><b>${esc(u.name)}</b></div><div class="muted small">${esc(u.desc)}</div>${u.amb ? `<div class="small amb">🛋️ ${esc(u.amb)}</div>` : ''}<div class="u-p">${DFIN.PEOPLE.filter(p => p.unit === u.id).map(p => esc(p.name.split(' ')[0])).join(' · ')}</div>${DFIN.REPORTS[u.id] && u.id !== 'caf' ? `<button class="mini" data-open-report="${u.id}">reporting</button>` : ''}</div>`).join('')}</div>`;
     },
 
     _help(title, body) {

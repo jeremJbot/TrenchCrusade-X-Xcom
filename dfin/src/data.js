@@ -23,51 +23,33 @@ DFIN.PLAYER = {
 
 /* -------------------------------------------------- Unités ---------- */
 DFIN.UNITS = [
-  {
-    id: 'dir', name: 'Direction', short: 'DIR', color: '#c9a34a',
-    desc: 'Bureau de la Directrice financière. Pilotage global, arbitrages, relations avec la Direction générale et le Conseil de surveillance.',
-  },
-  {
-    id: 'pil', name: 'Cockpit de pilotage', short: 'PIL', color: '#4fb3d9',
-    desc: 'Salle de pilotage : mur d\'écrans, indicateurs consolidés temps réel, cellule data & performance.',
-  },
-  {
-    id: 'cdg', name: 'Contrôle de gestion & Budget', short: 'CDG', color: '#e07a3f',
-    desc: 'Budget, atterrissage, reporting mensuel, analyse des écarts, cadrage budgétaire N+1.',
-  },
-  {
-    id: 'cpt', name: 'Comptabilité & Clôture', short: 'CPT', color: '#7c6bd1',
-    desc: 'Tenue des comptes, clôtures mensuelles et annuelles, comptabilité fournisseurs, relation CAC.',
-  },
-  {
-    id: 'tre', name: 'Trésorerie & Financements', short: 'TRE', color: '#3aa76d',
-    desc: 'Position de trésorerie, placements, programme obligataire vert, gestion de la dette et des risques de taux.',
-  },
-  {
-    id: 'inv', name: 'Pilotage des investissements', short: 'INV', color: '#d94f6a',
-    desc: 'Coûts à terminaison (CAT) par ligne, engagements, provisions pour aléas, revue trimestrielle.',
-  },
-  {
-    id: 'fis', name: 'Fiscalité & Recettes affectées', short: 'FIS', color: '#b78a3a',
-    desc: 'Recettes fiscales affectées, TVA, fiscalité des opérations, redevances et recettes commerciales.',
-  },
-  {
-    id: 'sif', name: 'SI Finance & Data', short: 'SIF', color: '#3f8fd9',
-    desc: 'ERP financier, référentiels, automatisation des reportings, projet PHENIX.',
-  },
-  {
-    id: 'cir', name: 'Contrôle interne & Risques', short: 'CIR', color: '#8a9bab',
-    desc: 'Cartographie des risques financiers, contrôles clés, suivi des recommandations d\'audit.',
-  },
-  {
-    id: 'caf', name: 'Cafétéria', short: 'CAF', color: '#a86f4a',
-    desc: 'Machine à café, bruits de couloir et vraies informations.',
-  },
+  { id: 'dir', name: 'Direction', short: 'DIR', color: '#c9a34a', amb: 'Bois sombre, tapis bordeaux, bibliothèque de rapports annuels.',
+    desc: 'Bureau de la Directrice financière. Pilotage global, arbitrages, relations avec la Direction générale et le Conseil de surveillance.' },
+  { id: 'pil', name: 'Centre de pilotage', short: 'PIL', color: '#4fb3d9', amb: 'Salle sombre, mur d\'écrans, consoles et halo bleu.',
+    desc: 'Cockpit : mur d\'écrans, indicateurs consolidés temps réel, cellule data & performance.' },
+  { id: 'srv', name: 'Salle serveurs', short: 'SRV', color: '#5aa0c8', amb: 'Baies noires, LED qui clignotent, plancher technique, froid.',
+    desc: 'Hébergement de l\'ERP financier, des entrepôts de données et des reportings automatisés.' },
+  { id: 'fin', name: 'Financement & Trésorerie', short: 'FIN', color: '#3aa76d', amb: 'Vert profond, mur végétal, planisphère des investisseurs, écrans de marché.',
+    desc: 'Position de trésorerie, placements, programme obligataire vert, gestion de la dette et des risques de taux.' },
+  { id: 'cdg', name: 'Contrôle de gestion', short: 'CDG', color: '#e07a3f', amb: 'Orange chaud, tableaux blancs couverts de courbes, classeurs et copieur.',
+    desc: 'Budget, atterrissage, reporting mensuel, analyse des écarts, cadrage budgétaire N+1.' },
+  { id: 'bud', name: 'Consolidation & Pilotage budgétaire', short: 'BUD', color: '#7c6bd1', amb: 'Violet, grande table de travail, calendrier mural, doubles écrans.',
+    desc: 'Comptes consolidés, clôtures, arrêtés semestriels, synthèse budgétaire pluriannuelle, relation CAC.' },
+  { id: 'fis', name: 'Fiscalité', short: 'FIS', color: '#b78a3a', amb: 'Cabinet feutré : lampes, fauteuil cuir, rayonnages de codes fiscaux.',
+    desc: 'Recettes fiscales affectées, TVA, fiscalité des opérations, redevances et recettes commerciales.' },
+  { id: 'ass', name: 'Assurances', short: 'ASS', color: '#5b7fa6', amb: 'Bleu ardoise, armoires à polices, coffre-fort, parapluies au portemanteau.',
+    desc: 'Programme d\'assurances du Grand Paris Express : tous risques chantier, responsabilité civile, sinistres et franchises.' },
+  { id: 'ci', name: 'Contrôle interne', short: 'CI', color: '#8a9bab', amb: 'Gris clair, listes de contrôle au mur, armoire verrouillée, ordre parfait.',
+    desc: 'Cartographie des risques financiers, contrôles clés, séparation des tâches, suivi des recommandations d\'audit.' },
+  { id: 'lab', name: 'Lab IA & Data', short: 'LAB', color: '#c95bd6', amb: 'Néons violets, poufs, bureau debout, écran incurvé, mini-baie et robot.',
+    desc: 'Automatisation des reportings, assistants IA finance, ERP et référentiels de données.' },
+  { id: 'caf', name: 'Lounge', short: 'CAF', color: '#a86f4a', amb: 'Terracotta, canapés, guirlandes, machine à café et vraies informations.',
+    desc: 'Machine à café, bruits de couloir et vraies informations.' },
 ];
 
 /* -------------------------------------------------- Personnes ------- */
 /* seat: index du siège dans le pod de l'unité (voir map.js) */
-DFIN.PEOPLE = [
+DFIN.PEOPLE = [ // glasses/long/badge ajoutés plus bas
   { id: 'helene', name: 'Hélène Marchetti', role: 'Directrice financière', unit: 'dir', seat: 0,
     skin: '#e6bf9a', hair: '#5a4632', shirt: '#7a2e3a', mood: 'exigeante',
     greet: 'Ah, vous voilà. Le COMEX est à 11h et j\'ai besoin d\'une vision consolidée. Asseyez-vous deux minutes.' },
@@ -89,38 +71,23 @@ DFIN.PEOPLE = [
     skin: '#8a5a3a', hair: '#141010', shirt: '#e08a58', mood: 'enjouée',
     greet: 'Les frais de structure sont sous le budget de 3 %. Enfin une bonne nouvelle à mettre dans le reporting !' },
 
-  { id: 'marc', name: 'Marc Dupuis', role: 'Chef comptable', unit: 'cpt', seat: 0,
+  { id: 'marc', name: 'Marc Dupuis', role: 'Responsable Consolidation & Pilotage budgétaire', unit: 'bud', seat: 0,
     skin: '#e3bc98', hair: '#8c8c8c', shirt: '#5a4aa8', mood: 'stoïque',
     greet: 'La clôture d\'août est à 92 %. Il reste 14 anomalies d\'interface et un rapprochement bancaire qui refuse de tomber juste.' },
-  { id: 'julie', name: 'Julie Fernandes', role: 'Comptable fournisseurs', unit: 'cpt', seat: 1,
-    skin: '#eccaa8', hair: '#3b2a1e', shirt: '#7a68c8', mood: 'débordée',
-    greet: '1 840 factures reçues cette semaine. Le délai global de paiement est à 27 jours, on tient l\'objectif de 30.' },
-  { id: 'lucas', name: 'Lucas Martin', role: 'Comptable — Immobilisations', unit: 'cpt', seat: 2,
-    skin: '#f2d6bb', hair: '#a86a3a', shirt: '#6a5cb8', mood: 'calme',
-    greet: 'Les mises en service de la 14 Nord passent en immobilisations ce mois-ci. 1,1 Md€ à reclasser, ça fait de la ligne.' },
-  { id: 'nadege', name: 'Nadège Okafor', role: 'Comptable — Consolidation & CAC', unit: 'cpt', seat: 3,
+  { id: 'nadege', name: 'Nadège Okafor', role: 'Responsable consolidation & CAC', unit: 'bud', seat: 1,
     skin: '#6e4327', hair: '#0e0b09', shirt: '#8f80d6', mood: 'précise',
     greet: 'Les commissaires aux comptes arrivent le 22 pour l\'intérim. Je prépare le dossier de révision.' },
 
-  { id: 'nadia', name: 'Nadia Haddad', role: 'Trésorière', unit: 'tre', seat: 0,
+  { id: 'nadia', name: 'Nadia Haddad', role: 'Responsable Financement & Trésorerie', unit: 'fin', seat: 0,
     skin: '#d9ad85', hair: '#1a1210', shirt: '#2f8f5c', mood: 'vigilante',
     greet: 'Position ce matin : 2 348 M€. On couvre 5,4 mois de décaissements. L\'émission verte de novembre se prépare.' },
-  { id: 'pierre', name: 'Pierre Vasseur', role: 'Responsable Financements', unit: 'tre', seat: 1,
+  { id: 'pierre', name: 'Pierre Vasseur', role: 'Responsable Financements', unit: 'fin', seat: 1,
     skin: '#e8c4a0', hair: '#4a3a2c', shirt: '#3aa76d', mood: 'enthousiaste',
     greet: 'Le book-building de l\'obligation verte ? Les investisseurs sont chauds. On vise 1,5 Md€ sur 20 ans à mid-swap +38.' },
-  { id: 'elodie', name: 'Élodie Chen', role: 'Back-office trésorerie', unit: 'tre', seat: 2,
+  { id: 'elodie', name: 'Élodie Chen', role: 'Back-office trésorerie', unit: 'fin', seat: 2,
     skin: '#f0d4b4', hair: '#151010', shirt: '#57b884', mood: 'rigoureuse',
     greet: 'Les rapprochements bancaires sont faits. Un virement de 4,2 M€ en suspens avec l\'agence comptable — je relance.' },
 
-  { id: 'rachid', name: 'Rachid Benali', role: 'Responsable Pilotage des investissements', unit: 'inv', seat: 0,
-    skin: '#d4a57c', hair: '#1c1512', shirt: '#b83a52', mood: 'inquiet',
-    greet: 'Le coût à terminaison du programme est à 36,1 Md€. La 15 Ouest me préoccupe : les tunneliers ont pris 6 semaines.' },
-  { id: 'ines', name: 'Inès Moreau', role: 'Chargée de pilotage — Lignes 15 & 16', unit: 'inv', seat: 1,
-    skin: '#efcfae', hair: '#7a4a2a', shirt: '#d94f6a', mood: 'combative',
-    greet: 'La revue des CAT du T3 est prête. 18 marchés en alerte orange, 3 en rouge. On a de quoi discuter au comité d\'engagement.' },
-  { id: 'baptiste', name: 'Baptiste Girard', role: 'Chargé de pilotage — Lignes 17 & 18', unit: 'inv', seat: 2,
-    skin: '#e7c3a0', hair: '#2b2118', shirt: '#e2748a', mood: 'pragmatique',
-    greet: 'La 18 a signé son avenant gares : +34 M€ mais le planning est sécurisé. On l\'intègre dans la CAT de septembre.' },
 
   { id: 'olivier', name: 'Olivier Mercier', role: 'Fiscaliste', unit: 'fis', seat: 0,
     skin: '#e6c2a0', hair: '#6a5a4a', shirt: '#a87a2e', mood: 'affable',
@@ -129,17 +96,24 @@ DFIN.PEOPLE = [
     skin: '#f4d8bc', hair: '#c49a4a', shirt: '#c99a44', mood: 'curieuse',
     greet: 'La taxe spéciale d\'équipement a été notifiée : 117 M€. Je mets à jour le tableau de recettes.' },
 
-  { id: 'yann', name: 'Yann Le Goff', role: 'Responsable SI Finance', unit: 'sif', seat: 0,
+  { id: 'yann', name: 'Yann Le Goff', role: 'Responsable Lab IA & SI Finance', unit: 'lab', seat: 0,
     skin: '#e9c8a8', hair: '#8a3a2a', shirt: '#2f6fb8', mood: 'geek',
     greet: 'PHENIX lot 2 est à 78 %. La bascule des immobilisations est prévue le week-end du 4 octobre. Croisez les doigts.' },
-  { id: 'kevin', name: 'Kevin Nguyen', role: 'Développeur data finance', unit: 'sif', seat: 1,
+  { id: 'kevin', name: 'Kevin Nguyen', role: 'Développeur data finance', unit: 'lab', seat: 1,
     skin: '#f0d0ac', hair: '#141210', shirt: '#4f8fd9', mood: 'malicieux',
     greet: 'J\'ai automatisé le reporting de trésorerie. Nadia ne le sait pas encore, elle croit que c\'est moi qui le fais à la main.' },
 
-  { id: 'isabelle', name: 'Isabelle Fontaine', role: 'Responsable Contrôle interne & Risques', unit: 'cir', seat: 0,
+  { id: 'claire', name: 'Claire Bonnet', role: 'Responsable Assurances', unit: 'ass', seat: 0,
+    skin: '#eccaa8', hair: '#8c5a3a', shirt: '#4a6d94', mood: 'posée',
+    greet: 'Le programme tous risques chantier est renouvelé jusqu\'en 2028. Trois sinistres ouverts sur la 15 Sud, dont une venue d\'eau à 2,4 M€.' },
+  { id: 'samuel', name: 'Samuel Adjei', role: 'Chargé de sinistres', unit: 'ass', seat: 1,
+    skin: '#6e4327', hair: '#0e0b09', shirt: '#6f93bd', mood: 'méthodique',
+    greet: 'J\'instruis 11 dossiers de sinistres. La franchise moyenne est de 500 k€, on récupère 71 % des montants déclarés.' },
+
+  { id: 'isabelle', name: 'Isabelle Fontaine', role: 'Responsable Contrôle interne', unit: 'ci', seat: 0,
     skin: '#ebc9a8', hair: '#5a4838', shirt: '#6f7f8f', mood: 'posée',
     greet: '37 contrôles clés, 34 conformes. Les 3 écarts portent sur la séparation des tâches dans le circuit d\'engagement.' },
-  { id: 'hugo', name: 'Hugo Lambert', role: 'Chargé de contrôle interne', unit: 'cir', seat: 1,
+  { id: 'hugo', name: 'Hugo Lambert', role: 'Chargé de contrôle interne', unit: 'ci', seat: 1,
     skin: '#e4bf9c', hair: '#2a1e14', shirt: '#8a9bab', mood: 'consciencieux',
     greet: 'Le plan d\'audit interne 2026 : 5 missions sur 7 réalisées. La revue des délégations de signature commence lundi.' },
 
@@ -174,8 +148,8 @@ DFIN.REPORTS = {
       { t: 'ok', m: 'Reporting d\'août diffusable le 15/09 comme prévu.' },
     ],
   },
-  cpt: {
-    title: 'Clôture mensuelle — Août 2026',
+  bud: {
+    title: 'Consolidation & pilotage budgétaire — Août 2026',
     kpis: [
       { l: 'Avancement clôture', v: '92 %', t: 'ok' },
       { l: 'Anomalies ouvertes', v: '14', s: 'interfaces SAP', t: 'warn' },
@@ -196,7 +170,7 @@ DFIN.REPORTS = {
       { t: 'ok', m: 'DGP sous l\'objectif pour le 5e mois consécutif.' },
     ],
   },
-  tre: {
+  fin: {
     title: 'Position de trésorerie — 12/09/2026',
     kpis: [
       { l: 'Trésorerie disponible', v: '2 348 M€', t: 'ok' },
@@ -219,7 +193,7 @@ DFIN.REPORTS = {
     ],
   },
   inv: {
-    title: 'Coûts à terminaison — Revue T3 2026',
+    title: 'Programme — Coûts à terminaison, revue T3 2026 (synthèse BUD)',
     kpis: [
       { l: 'CAT programme', v: '36,1 Md€', s: 'objectif 35,6', t: 'warn' },
       { l: 'Engagé cumulé', v: '29,4 Md€', s: '81 %' },
@@ -262,8 +236,8 @@ DFIN.REPORTS = {
       { t: 'info', m: 'Redevances commerciales gares : +8 % vs 2025.' },
     ],
   },
-  sif: {
-    title: 'SI Finance — Projet PHENIX & run',
+  lab: {
+    title: 'Lab IA & Data — PHENIX, automatisation, assistants',
     kpis: [
       { l: 'PHENIX lot 2 (immos)', v: '78 %', s: 'bascule 04/10', t: 'ok' },
       { l: 'Disponibilité ERP', v: '99,6 %' },
@@ -284,8 +258,8 @@ DFIN.REPORTS = {
       { t: 'ok', m: 'Reporting trésorerie automatisé livré.' },
     ],
   },
-  cir: {
-    title: 'Contrôle interne & Risques — T3 2026',
+  ci: {
+    title: 'Contrôle interne — T3 2026',
     kpis: [
       { l: 'Contrôles clés', v: '37', s: '34 conformes', t: 'ok' },
       { l: 'Écarts ouverts', v: '3', s: 'séparation des tâches', t: 'warn' },
@@ -305,6 +279,41 @@ DFIN.REPORTS = {
       { t: 'warn', m: 'Risque SI en hausse pendant la bascule PHENIX.' },
       { t: 'ok', m: '12 recommandations d\'audit closes depuis janvier.' },
     ],
+  },
+  ass: {
+    title: 'Programme d\'assurances — Point T3 2026',
+    kpis: [
+      { l: 'Primes annuelles', v: '38,4 M€' },
+      { l: 'Sinistres ouverts', v: '11', s: '3 sur la L15 Sud', t: 'warn' },
+      { l: 'Taux de récupération', v: '71 %', s: 'montants déclarés', t: 'ok' },
+      { l: 'Franchise moyenne', v: '500 k€' },
+      { l: 'Renouvellement TRC', v: '2028', s: 'signé', t: 'ok' },
+    ],
+    chart: { type: 'bar', title: 'Sinistres déclarés vs indemnisés par ligne (M€)', labels: ['L14','L15 S','L15 O','L16','L17','L18'],
+      series: [ { name: 'Déclaré', data: [1.2,6.8,2.1,3.4,0.9,1.7], color: '#8a8a8a' }, { name: 'Indemnisé', data: [1.0,4.1,1.6,2.6,0.7,1.2], color: '#5b7fa6' } ] },
+    comments: [
+      'Le programme tous risques chantier (TRC) est renouvelé jusqu\'en 2028 avec une prime stable (+1,8 %).',
+      'Venue d\'eau sur la 15 Sud : 2,4 M€ déclarés, expertise contradictoire le 24/09.',
+      'Responsabilité civile maître d\'ouvrage : aucun sinistre majeur au T3.',
+    ],
+    alerts: [
+      { t: 'warn', m: 'L15 Sud — venue d\'eau : expertise le 24/09, 2,4 M€ en jeu.' },
+      { t: 'ok', m: 'TRC renouvelée jusqu\'en 2028.' },
+      { t: 'info', m: 'Revue annuelle du programme avec le courtier le 15/10.' },
+    ],
+  },
+  srv: {
+    title: 'Salle serveurs — État des systèmes financiers',
+    kpis: [
+      { l: 'ERP financier', v: '99,6 %', s: 'disponibilité', t: 'ok' },
+      { l: 'Entrepôt de données', v: 'OK', s: 'dernier flux 07:50', t: 'ok' },
+      { l: 'Reportings automatisés', v: '31 / 45' },
+      { l: 'Sauvegarde', v: 'J-0', s: '02:10 ce matin', t: 'ok' },
+      { l: 'Température', v: '21,4 °C' },
+    ],
+    chart: { type: 'line', title: 'Disponibilité ERP (%)', labels: ['Mar','Avr','Mai','Juin','Juil','Août','Sep'], series: [ { name: 'Dispo.', data: [99.2,99.8,99.5,99.9,99.7,99.6,99.6], color: '#5aa0c8' } ] },
+    comments: [ 'Les racks hébergent l\'ERP, l\'entrepôt de données finance et les robots de reporting du Lab IA.', 'Gel des développements du 28/09 au 06/10 pour la bascule PHENIX lot 2.' ],
+    alerts: [ { t: 'warn', m: 'Bascule PHENIX lot 2 le 04/10 : fenêtre d\'indisponibilité de 6 h.' }, { t: 'ok', m: 'Sauvegardes vérifiées.' } ],
   },
   pil: {
     title: 'Tableau de bord consolidé — Direction financière',
@@ -347,32 +356,34 @@ DFIN.REPORTS = {
 /* -------------------------------------------------- Calendrier ------ */
 /* d: 'YYYY-MM-DD', u: unité, t: type (clot|comite|budget|fin|audit|si|ext) */
 DFIN.CALENDAR = [
-  { d: '2026-09-14', u: 'sif', t: 'si',     n: 'Mise en production du correctif interface achats → comptabilité' },
-  { d: '2026-09-15', u: 'cpt', t: 'clot',   n: 'Fin de clôture mensuelle d\'août (J+10)' },
+  { d: '2026-09-14', u: 'lab', t: 'si',     n: 'Mise en production du correctif interface achats → comptabilité' },
+  { d: '2026-09-15', u: 'bud', t: 'clot',   n: 'Fin de clôture mensuelle d\'août (J+10)' },
   { d: '2026-09-15', u: 'cdg', t: 'budget', n: 'Diffusion du reporting mensuel d\'août au COMEX' },
-  { d: '2026-09-15', u: 'cir', t: 'audit',  n: 'Lancement de la revue des délégations de signature' },
-  { d: '2026-09-18', u: 'inv', t: 'comite', n: 'Comité d\'engagement — revue des CAT T3 (3 marchés rouges)' },
-  { d: '2026-09-22', u: 'tre', t: 'comite', n: 'Comité de trésorerie et de financement' },
-  { d: '2026-09-22', u: 'cpt', t: 'audit',  n: 'Intérim des commissaires aux comptes (22–26/09)' },
+  { d: '2026-09-15', u: 'ci', t: 'audit',  n: 'Lancement de la revue des délégations de signature' },
+  { d: '2026-09-18', u: 'bud', t: 'comite', n: 'Comité d\'engagement — revue des CAT T3 (3 marchés rouges)' },
+  { d: '2026-09-22', u: 'fin', t: 'comite', n: 'Comité de trésorerie et de financement' },
+  { d: '2026-09-22', u: 'bud', t: 'audit',  n: 'Intérim des commissaires aux comptes (22–26/09)' },
   { d: '2026-09-25', u: 'cdg', t: 'budget', n: 'Envoi des lettres de cadrage budgétaire 2027' },
-  { d: '2026-09-28', u: 'sif', t: 'si',     n: 'Gel des développements ERP (jusqu\'au 06/10)' },
-  { d: '2026-09-30', u: 'cpt', t: 'clot',   n: 'Arrêté des comptes semestriels au 30/06 — version définitive' },
-  { d: '2026-10-04', u: 'sif', t: 'si',     n: 'Bascule PHENIX lot 2 — immobilisations (week-end)' },
-  { d: '2026-10-06', u: 'tre', t: 'fin',    n: 'Roadshow investisseurs obligation verte (Paris, Francfort, Amsterdam)' },
+  { d: '2026-09-28', u: 'lab', t: 'si',     n: 'Gel des développements ERP (jusqu\'au 06/10)' },
+  { d: '2026-09-30', u: 'bud', t: 'clot',   n: 'Arrêté des comptes semestriels au 30/06 — version définitive' },
+  { d: '2026-10-04', u: 'lab', t: 'si',     n: 'Bascule PHENIX lot 2 — immobilisations (week-end)' },
+  { d: '2026-10-06', u: 'fin', t: 'fin',    n: 'Roadshow investisseurs obligation verte (Paris, Francfort, Amsterdam)' },
   { d: '2026-10-08', u: 'dir', t: 'comite', n: 'Conseil de surveillance — comptes semestriels' },
-  { d: '2026-10-13', u: 'cir', t: 'comite', n: 'Comité d\'audit — cartographie des risques T3' },
-  { d: '2026-10-15', u: 'cpt', t: 'clot',   n: 'Clôture mensuelle de septembre (J+10)' },
+  { d: '2026-10-13', u: 'ci', t: 'comite', n: 'Comité d\'audit — cartographie des risques T3' },
+  { d: '2026-10-15', u: 'bud', t: 'clot',   n: 'Clôture mensuelle de septembre (J+10)' },
+  { d: '2026-09-24', u: 'ass', t: 'ext',    n: 'Expertise contradictoire — venue d\'eau L15 Sud (2,4 M€)' },
+  { d: '2026-10-15', u: 'ass', t: 'comite', n: 'Revue annuelle du programme d\'assurances avec le courtier' },
   { d: '2026-10-20', u: 'cdg', t: 'budget', n: 'Atterrissage 2026 — version 2' },
   { d: '2026-10-27', u: 'fis', t: 'fin',    n: 'Déclaration TVA T3 et demande de remboursement de crédit' },
   { d: '2026-11-03', u: 'cdg', t: 'budget', n: 'Arbitrages budgétaires 2027 avec les directions opérationnelles' },
   { d: '2026-11-10', u: 'fis', t: 'fin',    n: 'Encaissement de la taxe spéciale d\'équipement (117 M€)' },
-  { d: '2026-11-17', u: 'tre', t: 'fin',    n: 'Émission obligataire verte — 1,5 Md€, 20 ans' },
-  { d: '2026-11-20', u: 'inv', t: 'comite', n: 'Comité d\'engagement — avenants lignes 15 & 16' },
+  { d: '2026-11-17', u: 'fin', t: 'fin',    n: 'Émission obligataire verte — 1,5 Md€, 20 ans' },
+  { d: '2026-11-20', u: 'bud', t: 'comite', n: 'Comité d\'engagement — avenants lignes 15 & 16' },
   { d: '2026-11-26', u: 'dir', t: 'comite', n: 'Conseil de surveillance — budget 2027' },
-  { d: '2026-12-10', u: 'inv', t: 'comite', n: 'Revue des coûts à terminaison T4' },
-  { d: '2026-12-15', u: 'cir', t: 'audit',  n: 'Restitution du plan d\'audit interne 2026' },
-  { d: '2026-12-18', u: 'cpt', t: 'clot',   n: 'Pré-clôture annuelle — instructions de clôture 2026' },
-  { d: '2026-12-22', u: 'tre', t: 'fin',    n: 'Placement de fin d\'année et point de liquidité' },
+  { d: '2026-12-10', u: 'bud', t: 'comite', n: 'Revue des coûts à terminaison T4' },
+  { d: '2026-12-15', u: 'ci', t: 'audit',  n: 'Restitution du plan d\'audit interne 2026' },
+  { d: '2026-12-18', u: 'bud', t: 'clot',   n: 'Pré-clôture annuelle — instructions de clôture 2026' },
+  { d: '2026-12-22', u: 'fin', t: 'fin',    n: 'Placement de fin d\'année et point de liquidité' },
 ];
 DFIN.CAL_TYPES = {
   clot: { n: 'Clôture', c: '#7c6bd1' }, comite: { n: 'Comité / Conseil', c: '#c9a34a' }, budget: { n: 'Budget & reporting', c: '#e07a3f' },
@@ -455,13 +466,15 @@ DFIN.NEWS = {
 
 /* -------------------------------------------------- Bavardages ------ */
 DFIN.CHATTER = {
+  ass: [ 'Expertise le 24.', 'Franchise 500 k€.', 'La TRC est renouvelée.', 'Onze dossiers ouverts.' ],
+  srv: [ 'bip.', 'bip bip.' ],
   cdg: [ 'Le fichier ne s\'ouvre plus…', 'Encore un écart de 12 M€ ?', 'J+8. On tient.', 'Qui a touché à l\'onglet Synthèse ?' ],
-  cpt: [ 'Le rapprochement ne tombe pas juste.', '1 840 factures…', 'C\'est une écriture d\'inventaire.', 'Les CAC arrivent le 22.' ],
-  tre: [ 'Mid-swap +38, pas plus.', 'Position à 2 348.', 'Le point bas est fin octobre.', 'La banque a rappelé.' ],
+  bud: [ 'Le rapprochement ne tombe pas juste.', '1 840 factures…', 'C\'est une écriture d\'inventaire.', 'Les CAC arrivent le 22.' ],
+  fin: [ 'Mid-swap +38, pas plus.', 'Position à 2 348.', 'Le point bas est fin octobre.', 'La banque a rappelé.' ],
   inv: [ 'Six semaines de retard…', 'La 15 Ouest, encore.', 'Comité le 18.', 'Aléas ou surcoût ?' ],
   fis: [ 'La TSB rentre bien.', '212 M€ de crédit de TVA.', 'La TSE est notifiée.', 'Redevances : +8 %.' ],
-  sif: [ 'Le flux est passé à 7h50.', 'Gel des devs le 28.', 'Encore un ticket critique.', 'Bascule le 4 octobre.' ],
-  cir: [ '34 sur 37.', 'Séparation des tâches…', 'Le comité d\'audit est le 13.', '214 délégations à revoir.' ],
+  lab: [ 'Le flux est passé à 7h50.', 'Gel des devs le 28.', 'Encore un ticket critique.', 'Bascule le 4 octobre.' ],
+  ci: [ '34 sur 37.', 'Séparation des tâches…', 'Le comité d\'audit est le 13.', '214 délégations à revoir.' ],
   pil: [ 'Rafraîchissement dans 4 min.', 'La courbe en S se tient.', 'Écran spécial COMEX.', 'Le flux a une heure de retard.' ],
   dir: [ 'COMEX à 11h.', 'Il me faut une synthèse.', 'Dernier délai 10h30.', 'Le DG veut du concret.' ],
   caf: [ 'La machine fait un bruit bizarre.', 'Tu prends un café ?', 'Il paraît que…', 'Pause de 5 minutes.' ],
@@ -481,14 +494,14 @@ DFIN.RUMORS = [
 DFIN.MISSIONS = [
   {
     id: 'm1', title: 'Les éléments du COMEX', giver: 'helene', deadline: '10:30',
-    intro: 'Le COMEX est à 11h. Il me faut trois choses, et vite : la position de trésorerie de Nadia, l\'atterrissage 2026 de Sophie et l\'état des coûts à terminaison de Rachid. Revenez me voir quand vous avez tout.',
+    intro: 'Le COMEX est à 11h. Il me faut trois choses, et vite : la position de trésorerie de Nadia, l\'atterrissage 2026 de Sophie et la synthèse des coûts à terminaison de Marc. Revenez me voir quand vous avez tout.',
     items: [
       { id: 'tre_pos', who: 'nadia',  label: 'Position de trésorerie', ask: 'J\'ai besoin de ta position de trésorerie pour le COMEX.',
         answer: 'La voilà : 2 348 M€ ce matin, 5,4 mois de couverture, point bas fin octobre à 1 780 M€. Je t\'envoie la note de sensibilité aussi.', fact: 'Trésorerie 2 348 M€ · couverture 5,4 mois · point bas 1 780 M€ (oct.)' },
       { id: 'cdg_att', who: 'sophie', label: 'Atterrissage 2026', ask: 'Il me faut l\'atterrissage 2026 pour la note du COMEX.',
         answer: 'Atterrissage à 4 050 M€, soit −130 M€ vs budget, essentiellement du décalage calendaire. Attention : l\'avenant gares de la 18 n\'est pas encore dedans.', fact: 'Atterrissage 2026 : 4 050 M€ (−3,1 % vs budget), hors avenant L18' },
-      { id: 'inv_cat', who: 'rachid', label: 'Coûts à terminaison', ask: 'Où en est le coût à terminaison pour le COMEX ?',
-        answer: '36,1 Md€, soit +0,5 Md€ vs objectif. Le sujet, c\'est la 15 Ouest : tunneliers, 6 semaines, 180 M€. Je le présente au comité du 18.', fact: 'CAT 36,1 Md€ (+0,5 vs objectif) · L15 Ouest +180 M€' },
+      { id: 'bud_cat', who: 'marc', label: 'Synthèse coûts à terminaison', ask: 'Il me faut la synthèse consolidée des coûts à terminaison pour le COMEX.',
+        answer: 'Programme à 36,1 Md€, soit +0,5 Md€ vs objectif. Le sujet, c\'est la 15 Ouest : tunneliers, 6 semaines, 180 M€. Les comptes semestriels intègrent une provision.', fact: 'CAT 36,1 Md€ (+0,5 vs objectif) · L15 Ouest +180 M€' },
     ],
     outro: 'Parfait. Trésorerie solide, atterrissage tenu, et un point d\'attention clair sur la 15 Ouest. C\'est exactement ce dont j\'ai besoin. Je rédige la note.',
     reward: 'Note COMEX bouclée',
@@ -521,7 +534,9 @@ DFIN.MISSIONS = [
 
 /* -------------------------------------------------- Bandeau écran --- */
 DFIN.TICKER = [
-  'TRÉSORERIE 2 348 M€ ▲', 'ATTERRISSAGE 2026 : 4 050 M€', 'CAT PROGRAMME 36,1 Md€ ⚠', 'CLÔTURE AOÛT 92 %', 'DGP 27 j ✔',
+  'SINISTRES OUVERTS 11 · TRC 2028 ✔',  'TRÉSORERIE 2 348 M€ ▲', 'ATTERRISSAGE 2026 : 4 050 M€', 'CAT PROGRAMME 36,1 Md€ ⚠', 'CLÔTURE AOÛT 92 %', 'DGP 27 j ✔',
   'RECETTES AFFECTÉES ENCAISSÉES 69 %', 'PHENIX LOT 2 : 78 %', 'NOTATION AA — STABLE', 'GREEN BOND 1,5 Md€ — 17/11',
   'COMITÉ D\'ENGAGEMENT 18/09', 'L15 OUEST : +6 SEM ⚠', 'CONTRÔLES CLÉS 34/37', 'DONNÉES FICTIVES — DÉMO',
 ];
+
+DFIN.PEOPLE.forEach((p, i) => { p.glasses = i % 3 === 1; p.long = i % 4 === 2; p.badge = i % 2 === 0; });

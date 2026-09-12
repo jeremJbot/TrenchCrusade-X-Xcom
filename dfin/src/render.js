@@ -12,7 +12,7 @@
     constructor(canvas, map, world) {
       this.canvas = canvas; this.ctx = canvas.getContext('2d');
       this.map = map; this.world = world;
-      this.cam = { x: world.player.x, y: world.player.y, zoom: 1.7 };
+      this.cam = { x: world.player.x, y: world.player.y, zoom: 1.9 };
       this.targetZoom = this.cam.zoom;
       this.static = document.createElement('canvas'); this.static.width = map.W * T; this.static.height = map.H * T;
       this._renderStatic();
@@ -29,7 +29,7 @@
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       this.canvas.width = Math.floor(window.innerWidth * dpr); this.canvas.height = Math.floor(window.innerHeight * dpr);
       this.dpr = dpr;
-      if (window.innerWidth < 700) this.targetZoom = Math.min(this.targetZoom, 1.4);
+      if (window.innerWidth < 700) this.targetZoom = Math.min(this.targetZoom, 1.55);
     }
 
     _renderStatic() {
@@ -47,7 +47,23 @@
       for (const o of m.objects) if (o.type === 'screen') A.drawObject(ctx, o);
       // halo sous le mur d'écrans
       const g = ctx.createLinearGradient(0, 3 * T, 0, 7 * T); g.addColorStop(0, 'rgba(79,179,217,0.30)'); g.addColorStop(1, 'rgba(79,179,217,0)');
-      ctx.fillStyle = g; ctx.fillRect(12 * T, 3 * T, 28 * T, 4 * T);
+      ctx.fillStyle = g; ctx.fillRect(10 * T, 3 * T, 20 * T, 4 * T);
+      this._renderLights();
+    }
+
+    // Couche d'éclairage : pénombre douce percée par les lampes, écrans, néons et fenêtres
+    _renderLights() {
+      const m = this.map; const S = 8; // 1 tuile = 8 px dans la couche lumière
+      const c = document.createElement('canvas'); c.width = m.W * S; c.height = m.H * S; const ctx = c.getContext('2d');
+      ctx.fillStyle = 'rgba(12,16,30,0.30)'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.globalCompositeOperation = 'destination-out';
+      for (const l of m.lights) { const g = ctx.createRadialGradient(l.x * S, l.y * S, 0, l.x * S, l.y * S, l.r * S); g.addColorStop(0, `rgba(0,0,0,${l.a})`); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(l.x * S, l.y * S, l.r * S, 0, 7); ctx.fill(); }
+      // moniteurs
+      for (const o of m.objects) if (o.type === 'desk') { const g = ctx.createRadialGradient((o.x + 0.5) * S, (o.y + 0.5) * S, 0, (o.x + 0.5) * S, (o.y + 0.5) * S, 1.6 * S); g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect((o.x - 1.5) * S, (o.y - 1.5) * S, 4 * S, 4 * S); }
+      this.lightLayer = c;
+      const t = document.createElement('canvas'); t.width = c.width; t.height = c.height; const tc = t.getContext('2d');
+      for (const l of m.lights) { const g = tc.createRadialGradient(l.x * S, l.y * S, 0, l.x * S, l.y * S, l.r * S); const rgb = DFIN.mix(l.color, l.color, 0); g.addColorStop(0, DFIN.mix(rgb, '#000000', 0) + '55'); g.addColorStop(1, rgb + '00'); tc.fillStyle = g; tc.beginPath(); tc.arc(l.x * S, l.y * S, l.r * S, 0, 7); tc.fill(); }
+      this.tintLayer = t;
     }
 
     /* -------------------------------------------- Mur d'écrans ----- */
@@ -80,7 +96,7 @@
         if (k.s) { ctx.fillStyle = '#9aa7b5'; ctx.font = '11px system-ui, sans-serif'; ctx.fillText(k.s, x + 12, 112, tw - 24); }
       });
       // courbe trésorerie
-      const s = DFIN.REPORTS.tre.chart; const d = s.series[0].data; const cx0 = 18, cy0 = 136, cw = w * 0.62, ch = h - cy0 - 34;
+      const s = DFIN.REPORTS.fin.chart; const d = s.series[0].data; const cx0 = 18, cy0 = 136, cw = w * 0.62, ch = h - cy0 - 34;
       ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fillRect(cx0, cy0, cw, ch);
       ctx.fillStyle = '#9aa7b5'; ctx.font = '12px system-ui, sans-serif'; ctx.fillText('TRÉSORERIE FIN DE MOIS (M€) — RÉEL ET PRÉVISION', cx0 + 8, cy0 + 4);
       const mn = 1200, mx = 3400; const px = i => cx0 + 10 + i * (cw - 20) / (d.length - 1), py = v => cy0 + ch - 8 - (v - mn) / (mx - mn) * (ch - 28);
@@ -117,7 +133,7 @@
     }
     _rightScreen(ctx, w, h, now, game) {
       ctx.fillStyle = '#e05a5a'; ctx.font = 'bold 18px system-ui'; ctx.fillText('ALERTES & VIGILANCE', 14, 10);
-      const alerts = [].concat(DFIN.REPORTS.inv.alerts[0], DFIN.REPORTS.tre.alerts[0], DFIN.REPORTS.sif.alerts[1], DFIN.REPORTS.cpt.alerts[0], DFIN.REPORTS.cir.alerts[0], DFIN.REPORTS.fis.alerts[0]);
+      const alerts = [].concat(DFIN.REPORTS.inv.alerts[0], DFIN.REPORTS.fin.alerts[0], DFIN.REPORTS.lab.alerts[1], DFIN.REPORTS.bud.alerts[0], DFIN.REPORTS.ass.alerts[0], DFIN.REPORTS.ci.alerts[0]);
       alerts.forEach((a, i) => {
         const y = 40 + i * 20; const c = a.t === 'bad' ? '#e05a5a' : a.t === 'warn' ? '#e0a63f' : '#6fd07a';
         const blink = a.t === 'bad' && Math.floor(now * 3) % 2; ctx.fillStyle = blink ? '#ffffff' : c; ctx.beginPath(); ctx.arc(20, y + 7, 5, 0, 7); ctx.fill();
@@ -182,7 +198,9 @@
       // étiquettes de nom (proches)
       const near = this.world.nearestNpc(2.2);
       for (const n of this.world.npcs) { const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < 3.2 * T) { ctx.font = '9px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = n === near ? '#ffe9a8' : 'rgba(255,255,255,0.75)'; ctx.fillText(n.name.split(' ')[0], n.x, n.y + 20); } }
-      // assombrissement du cockpit hors halo + vignette légère
+      // éclairage : pénombre + teintes chaudes/froides
+      ctx.imageSmoothingEnabled = true;
+      if (this.lightLayer) { ctx.drawImage(this.lightLayer, 0, 0, this.map.W * T, this.map.H * T); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.7; ctx.drawImage(this.tintLayer, 0, 0, this.map.W * T, this.map.H * T); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       this._drawMinimap(game);
     }
