@@ -11,7 +11,13 @@ mémoire persistante, décisions et actions validées uniquement dans l'interfac
 - Un fournisseur de modèle (API Claude), de transcription et de synthèse vocale **configurés explicitement**
   (aucun service n'est fourni par l'abonnement Claude Code).
 
-## Installation
+## Lancement en un clic
+- **Windows** : double-cliquer sur `lancer.bat`.
+- **macOS** : double-cliquer sur `lancer.command` (Linux : `./lancer.command`).
+
+Au premier lancement, le script crée l'environnement, installe les dépendances, crée `.env` à partir de `.env.example` (à compléter avec les clés) puis ouvre `http://127.0.0.1:8765` dans le navigateur. Fermer la fenêtre arrête l'assistant.
+
+## Installation manuelle
 ```bash
 cd codir-assistant
 python3 -m venv .venv && . .venv/bin/activate      # ou : uv venv && . .venv/bin/activate
