@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Décision structurée (table decisions). Validée uniquement via l'interface.",
+  "type": "object",
+  "required": ["id", "objet", "status", "source_ref", "proposed_by"],
+  "properties": {
+    "id": {"type": "string"},
+    "session_id": {"type": ["string", "null"]},
+    "objet": {"type": "string"},
+    "dossier": {"type": ["string", "null"]},
+    "status": {"enum": ["proposee", "validee", "rejetee"]},
+    "source_ref": {"type": "object"},
+    "proposed_by": {"enum": ["agent", "utilisateur"]},
+    "validated_at": {"type": ["string", "null"]}
+  }
+}

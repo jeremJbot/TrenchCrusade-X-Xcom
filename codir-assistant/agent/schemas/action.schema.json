@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Action structurée (table actions). Les champs manquants restent null et visibles.",
+  "type": "object",
+  "required": ["id", "objet", "status", "source_ref", "proposed_by"],
+  "properties": {
+    "id": {"type": "string"},
+    "session_id": {"type": ["string", "null"]},
+    "objet": {"type": "string"},
+    "dossier": {"type": ["string", "null"]},
+    "responsable": {"type": ["string", "null"]},
+    "echeance": {"type": ["string", "null"]},
+    "status": {"enum": ["proposee", "validee", "rejetee", "en_cours", "terminee"]},
+    "source_ref": {"type": "object"},
+    "proposed_by": {"enum": ["agent", "utilisateur"]},
+    "validated_at": {"type": ["string", "null"]}
+  }
+}

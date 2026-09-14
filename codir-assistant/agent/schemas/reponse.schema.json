@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Réponse structurée d'un tour de l'assistant (entrée de l'outil produire_reponse)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["repondre", "reponse_orale", "reponse_ecrite", "references", "souvenirs_cites", "souvenirs_proposes",
+               "decisions_proposees", "actions_proposees", "clarifications", "intervention"],
+  "properties": {
+    "repondre": {"type": "boolean", "description": "Vrai si une réponse doit être affichée/prononcée maintenant."},
+    "reponse_orale": {"type": "string", "description": "Version courte destinée à la synthèse vocale. Vide si repondre=false."},
+    "reponse_ecrite": {"type": "string", "description": "Version affichée, plus complète, avec réserves explicites (déclaré, à confirmer)."},
+    "references": {"type": "array", "items": {"type": "string"}, "description": "chunk_id réellement reçus des outils et utilisés."},
+    "souvenirs_cites": {"type": "array", "items": {"type": "string"}, "description": "memory_id utilisés."},
+    "souvenirs_proposes": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["contenu", "type", "dossier", "statut", "relations"],
+        "properties": {
+          "contenu": {"type": "string"},
+          "type": {"type": "string", "enum": ["fait", "declaration", "hypothese", "engagement", "synthese"]},
+          "dossier": {"type": ["string", "null"]},
+          "statut": {"type": "string", "enum": ["declare", "a_confirmer"]},
+          "auteur": {"type": ["string", "null"], "description": "Seulement si identifié de manière fiable (nommé explicitement)."},
+          "date_effet": {"type": ["string", "null"]},
+          "relations": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+            "required": ["type", "memory_id"],
+            "properties": {"type": {"type": "string", "enum": ["contredit", "remplace", "precise", "complete"]}, "memory_id": {"type": "string"}}}}
+        }
+      }
+    },
+    "decisions_proposees": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+      "required": ["objet", "dossier"], "properties": {"objet": {"type": "string"}, "dossier": {"type": ["string", "null"]}}}},
+    "actions_proposees": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+      "required": ["objet", "dossier", "responsable", "echeance"],
+      "properties": {"objet": {"type": "string"}, "dossier": {"type": ["string", "null"]},
+                     "responsable": {"type": ["string", "null"]}, "echeance": {"type": ["string", "null"]}}}},
+    "clarifications": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+      "required": ["question", "motif"], "properties": {"question": {"type": "string"}, "motif": {"type": "string"}}}},
+    "intervention": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["declencheur", "motif", "texte", "sources"],
+      "properties": {
+        "declencheur": {"type": "string", "enum": ["question_adressee", "contradiction", "precision", "action_incomplete", "dependance", "clarification"]},
+        "motif": {"type": "string"},
+        "texte": {"type": "string"},
+        "sources": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

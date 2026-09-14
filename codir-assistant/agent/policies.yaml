@@ -1,0 +1,67 @@
+# Règles d'intervention et d'autorisation. Chargées par app/agent/intervention.py et
+# app/agent/verification.py ; appliquées dans le code, pas seulement dans le prompt.
+
+modes:
+  dialogue_dirige:
+    description: "L'assistant répond lorsqu'il est sollicité (bouton « Demander à l'assistant » ou question adressée)."
+    analyse_ecoute: true        # extraction de souvenirs à partir des segments écoutés
+    interventions: false        # aucune proposition d'intervention spontanée
+    lecture_automatique: false
+  codir_assiste:
+    description: "Mode par défaut. L'assistant écoute, propose des interventions ; l'animateur déclenche leur lecture."
+    analyse_ecoute: true
+    interventions: true
+    lecture_automatique: false
+  codir_actif:
+    description: "Expérimental. L'assistant peut lire une intervention lors d'une pause détectée, sous contrôle des règles."
+    analyse_ecoute: true
+    interventions: true
+    lecture_automatique: true
+
+declencheurs_autorises:
+  - question_adressee
+  - contradiction
+  - precision
+  - action_incomplete
+  - dependance
+  - clarification
+
+# Déclencheurs pour lesquels une source (chunk_id ou memory_id) est obligatoire.
+source_obligatoire:
+  - contradiction
+  - dependance
+  - precision
+
+intervention:
+  delai_minimal_s_par_defaut: 90        # surchargé par INTERVENTION_MIN_DELAY_S
+  longueur_orale_max_par_defaut: 600    # surchargé par INTERVENTION_MAX_CHARS
+  pause_minimale_ms: 1500                # silence requis avant lecture automatique (mode actif)
+  similarite_repetition: 0.8            # au-delà : intervention considérée comme une répétition
+  reverifier_si_nouveaux_enonces: true  # avant lecture, vérifier que le point n'est pas déjà résolu
+  score_confiance_suffisant: false      # un score déclaré par le modèle ne suffit jamais
+
+autorisations:
+  agent:
+    souvenirs_statuts_autorises: [declare, a_confirmer]
+    peut_valider_decision: false
+    peut_valider_action: false
+    peut_modifier_document: false
+    peut_envoyer_mail: false
+    outils:
+      - rechercher_documents
+      - lire_extrait
+      - rechercher_memoire
+      - consulter_actions
+      - proposer_souvenir
+      - proposer_decision
+      - proposer_action
+      - proposer_clarification
+      - produire_reponse
+  utilisateur:
+    valide_dans_interface: true
+
+confirmation_requise:
+  - montant
+  - date
+  - nom
+  - negation_determinante

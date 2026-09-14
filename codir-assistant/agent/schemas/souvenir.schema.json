@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Souvenir mémorisé (table memories)",
+  "type": "object",
+  "required": ["id", "content", "type", "source_type", "source_ref", "status", "created_at", "updated_at"],
+  "properties": {
+    "id": {"type": "string"},
+    "content": {"type": "string"},
+    "dossier": {"type": ["string", "null"]},
+    "type": {"enum": ["fait", "declaration", "hypothese", "engagement", "synthese", "correction"]},
+    "source_type": {"enum": ["document", "seance", "utilisateur"]},
+    "source_ref": {"type": "object", "description": "{document_id, chunk_id} ou {session_id, utterance_id, ts}"},
+    "author": {"type": ["string", "null"], "description": "Uniquement si identifié de manière fiable"},
+    "stated_at": {"type": ["string", "null"]},
+    "effective_at": {"type": ["string", "null"]},
+    "status": {"enum": ["declare", "a_confirmer", "valide", "conteste", "remplace"]},
+    "relations": {"type": "array", "items": {"type": "object", "properties": {"type": {"enum": ["contredit", "remplace", "precise", "complete"]}, "memory_id": {"type": "string"}}}},
+    "needs_review": {"type": "integer"},
+    "review_reason": {"type": ["string", "null"]},
+    "created_at": {"type": "string"},
+    "updated_at": {"type": "string"}
+  }
+}
