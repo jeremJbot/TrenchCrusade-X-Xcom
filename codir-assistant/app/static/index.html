@@ -7,125 +7,116 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<header id="topbar">
-  <div class="brand">Assistant CODIR FIN <span class="muted">pilote local</span></div>
-  <div class="status">
-    <span class="pill" id="st-audio" title="État du microphone">Micro : arrêté</span>
-    <span class="pill" id="st-model" title="Modèle de langage">Modèle : …</span>
-    <span class="pill" id="st-index" title="Indexation documentaire">Index : …</span>
-    <span class="pill" id="st-net" title="Connexion au serveur local">Serveur : …</span>
-    <span class="pill mode" id="st-mode" title="Mode de participation">Mode : …</span>
+<div class="wrap">
+<header class="top">
+  <div class="brand"><h1>Assistant CODIR FIN</h1><span class="sub">Direction financière · SGP</span></div>
+  <div class="chips">
+    <span class="pill" id="st-audio">Micro : arrêté</span>
+    <span class="pill" id="st-model">Modèle : …</span>
+    <span class="pill" id="st-index">Documents : …</span>
+    <span class="pill" id="st-net">Serveur : …</span>
+    <span class="pill mode" id="st-mode">Mode : …</span>
+    <button class="icon-btn" id="btn-drawer" title="Documents et réglages" aria-label="Documents et réglages">⚙</button>
   </div>
 </header>
 
 <main>
-  <section id="left">
-    <div class="panel" id="session-panel">
-      <div class="row">
-        <input id="session-title" placeholder="Titre de la séance" value="CODIR FIN">
-        <select id="mode-select" title="Mode de participation">
-          <option value="dialogue_dirige">A. Dialogue dirigé</option>
-          <option value="codir_assiste" selected>B. CODIR assisté (défaut)</option>
-          <option value="codir_actif">C. CODIR actif (expérimental)</option>
-        </select>
-        <button id="btn-session-start" class="primary">Démarrer la séance</button>
-        <button id="btn-session-close" hidden>Clore la séance</button>
+  <section class="col">
+    <div class="stage">
+      <div class="orb indicator off" id="listen-indicator"><span class="dot"></span></div>
+      <div class="stage-body">
+        <h2 id="listen-text">Prêt pour la séance</h2>
+        <p id="session-info">Démarrez une séance, puis activez le micro. Dites « Assistant, … » pour lui poser une question.</p>
+        <div class="controls">
+          <input id="session-title" placeholder="Titre de la séance" value="CODIR FIN">
+          <select id="mode-select" title="Mode de participation">
+            <option value="dialogue_dirige">Mode dialogue</option>
+            <option value="codir_assiste" selected>Mode assisté</option>
+            <option value="codir_actif">Mode actif (expérimental)</option>
+          </select>
+          <button id="btn-session-start" class="primary">Démarrer la séance</button>
+          <button id="btn-session-close" class="quiet" hidden>Clore la séance</button>
+        </div>
+        <div class="controls">
+          <button id="btn-mic-start" class="primary" disabled>Activer le micro</button>
+          <button id="btn-mic-pause" disabled>Pause</button>
+          <button id="btn-mic-resume" disabled hidden>Reprendre</button>
+          <button id="btn-mic-stop" class="ghost" disabled>Arrêter le micro</button>
+          <button id="btn-address" class="ghost" disabled title="La prochaine prise de parole est une question pour l'assistant">Poser une question</button>
+          <button id="btn-voice-stop" class="ghost" disabled>Couper la voix</button>
+          <meter id="level" min="0" max="1" value="0" title="Niveau du micro"></meter>
+        </div>
+        <div class="controls small">
+          <label>Orateur <input id="speaker" placeholder="facultatif" size="14"></label>
+          <label><input type="checkbox" id="voice-on" checked> Voix</label>
+          <label title="Couper la voix de l'assistant dès qu'un participant parle"><input type="checkbox" id="barge-in"> Interruption vocale</label>
+          <span class="muted" id="audio-note"></span>
+        </div>
       </div>
-      <div class="row small muted" id="session-info">Aucune séance active.</div>
     </div>
 
-    <div class="panel" id="audio-panel">
-      <div class="row">
-        <button id="btn-mic-start" class="primary" disabled>Activer le micro</button>
-        <button id="btn-mic-pause" disabled>Suspendre</button>
-        <button id="btn-mic-resume" disabled hidden>Reprendre</button>
-        <button id="btn-mic-stop" disabled>Arrêter le micro</button>
-        <button id="btn-voice-stop" disabled>Arrêter la voix</button>
-        <button id="btn-address" disabled title="Le prochain segment audio sera traité comme une question adressée à l'assistant">Demander à l'assistant</button>
-      </div>
-      <div class="row">
-        <div id="listen-indicator" class="indicator off"><span class="dot"></span><span id="listen-text">Écoute inactive</span></div>
-        <meter id="level" min="0" max="1" value="0"></meter>
-        <label class="small">Orateur (facultatif) <input id="speaker" placeholder="ex. Jérémy Jauroyon" size="18"></label>
-        <label class="small"><input type="checkbox" id="voice-on" checked> Voix</label>
-        <label class="small" title="Interrompre la voix de l'assistant quand un participant parle"><input type="checkbox" id="barge-in"> Interruption vocale</label>
-      </div>
-      <div class="row small muted" id="audio-note">Transcription : … · Synthèse : …</div>
-    </div>
-
-    <div class="panel grow" id="conv-panel">
-      <div class="panel-title">Conversation et transcription <span class="muted small">Préfixer un énoncé par « Assistant, » l'adresse à l'assistant.</span></div>
+    <div class="conv">
       <div id="conversation"></div>
-      <form id="ask-form" class="row">
-        <input id="ask-input" placeholder="Saisir une question ou un énoncé (clavier)…" autocomplete="off">
-        <button type="submit" class="primary" id="btn-ask" disabled>Demander</button>
-        <button type="button" id="btn-listen-text" disabled title="Ajouter comme énoncé entendu (sans réponse directe)">Ajouter comme énoncé</button>
+      <form id="ask-form" class="compose">
+        <input id="ask-input" placeholder="Écrire une question à l'assistant…" autocomplete="off">
+        <button type="submit" class="primary" id="btn-ask" disabled>Envoyer</button>
+        <button type="button" class="quiet" id="btn-listen-text" disabled title="Ajouter comme propos entendu, sans réponse">Noter</button>
       </form>
     </div>
   </section>
 
-  <section id="right">
+  <section class="col">
     <nav id="tabs">
       <button data-tab="sources" class="active">Sources</button>
       <button data-tab="interventions">Interventions <span class="badge" id="badge-int">0</span></button>
-      <button data-tab="memory">Mémoire <span class="badge" id="badge-mem">0</span></button>
+      <button data-tab="memory">À retenir <span class="badge" id="badge-mem">0</span></button>
       <button data-tab="decisions">Décisions & actions <span class="badge" id="badge-dec">0</span></button>
-      <button data-tab="documents">Documents</button>
-      <button data-tab="settings">Réglages</button>
     </nav>
-
     <div class="tab active" id="tab-sources">
-      <div class="panel-title">Sources de la dernière réponse</div>
-      <div id="sources" class="list"><p class="muted">Aucune réponse pour l'instant.</p></div>
+      <h3>Sources de la dernière réponse</h3>
+      <div id="sources" class="list"><p class="empty">Chaque réponse s'appuie sur des passages retrouvés dans vos documents.</p></div>
       <div id="clarifications-box"></div>
     </div>
-
     <div class="tab" id="tab-interventions">
-      <div class="panel-title">Interventions proposées
-        <button id="btn-suspend" class="small-btn" title="Reporter toutes les interventions en attente">Suspendre</button>
-      </div>
+      <h3>L'assistant souhaite intervenir <button id="btn-suspend" class="sm quiet">Tout reporter</button></h3>
       <div id="interventions" class="list"></div>
     </div>
-
     <div class="tab" id="tab-memory">
-      <div class="panel-title">Mémoire persistante
-        <select id="mem-filter" class="small-btn"><option value="">Tous statuts</option><option value="declare">déclaré</option><option value="a_confirmer">à confirmer</option><option value="valide">validé</option><option value="conteste">contesté</option><option value="remplace">remplacé</option></select>
-      </div>
-      <form id="mem-form" class="row small">
-        <input id="mem-content" placeholder="Nouveau souvenir (saisie manuelle)"><input id="mem-dossier" placeholder="Dossier" size="10"><button type="submit" class="small-btn">Ajouter</button>
-      </form>
+      <h3>Informations à valider <select id="mem-filter" class="sm"><option value="">Toutes</option><option value="declare">entendues</option><option value="a_confirmer">à confirmer</option><option value="valide">validées</option><option value="conteste">contestées</option><option value="remplace">remplacées</option></select></h3>
+      <form id="mem-form" class="inline-form"><input id="mem-content" placeholder="Ajouter une information"><input id="mem-dossier" placeholder="Dossier" size="10"><button type="submit" class="sm">Ajouter</button></form>
       <div id="memories" class="list"></div>
     </div>
-
     <div class="tab" id="tab-decisions">
-      <div class="panel-title">Décisions <span class="muted small">validées uniquement par ce bouton</span></div>
-      <form id="dec-form" class="row small"><input id="dec-objet" placeholder="Nouvelle décision"><input id="dec-dossier" placeholder="Dossier" size="10"><button type="submit" class="small-btn">Proposer</button></form>
+      <h3>Décisions</h3>
+      <form id="dec-form" class="inline-form"><input id="dec-objet" placeholder="Proposer une décision"><input id="dec-dossier" placeholder="Dossier" size="10"><button type="submit" class="sm">Proposer</button></form>
       <div id="decisions" class="list"></div>
-      <div class="panel-title">Actions</div>
-      <form id="act-form" class="row small"><input id="act-objet" placeholder="Nouvelle action"><input id="act-resp" placeholder="Responsable" size="10"><input id="act-ech" placeholder="Échéance" size="8"><button type="submit" class="small-btn">Proposer</button></form>
+      <h3>Actions</h3>
+      <form id="act-form" class="inline-form"><input id="act-objet" placeholder="Proposer une action"><input id="act-resp" placeholder="Responsable" size="10"><input id="act-ech" placeholder="Échéance" size="8"><button type="submit" class="sm">Proposer</button></form>
       <div id="actions" class="list"></div>
-      <div class="row"><button id="btn-minutes" class="small-btn">Projet de relevé de décisions</button></div>
+      <div class="controls"><button id="btn-minutes" class="sm">Projet de relevé de séance</button></div>
       <pre id="minutes" class="minutes" hidden></pre>
-    </div>
-
-    <div class="tab" id="tab-documents">
-      <div class="panel-title">Documents de référence
-        <button id="btn-refresh-docs" class="small-btn">Actualiser les documents</button>
-        <label class="small-btn file-btn">Déposer… <input type="file" id="file-input" multiple hidden></label>
-      </div>
-      <div class="small muted" id="docs-dir"></div>
-      <div id="documents" class="list"></div>
-    </div>
-
-    <div class="tab" id="tab-settings">
-      <div class="panel-title">Réglages et diagnostic <button id="btn-diag" class="small-btn">Tester les connexions</button></div>
-      <div id="settings" class="list"></div>
-      <div id="diag" class="list"></div>
-      <div class="panel-title">Conservation des données</div>
-      <div id="retention" class="small"></div>
     </div>
   </section>
 </main>
+</div>
+
+<div class="drawer" id="drawer">
+  <div class="sheet">
+    <div class="sheet-head"><h2>Documents et réglages</h2><button class="quiet" id="btn-drawer-close">Fermer</button></div>
+    <div class="tab active" id="tab-documents">
+      <h3>Documents de référence <button id="btn-refresh-docs" class="sm">Actualiser</button> <label class="sm file-btn">Déposer… <input type="file" id="file-input" multiple hidden></label></h3>
+      <div class="small muted" id="docs-dir"></div>
+      <div id="documents" class="list"></div>
+    </div>
+    <div class="tab active" id="tab-settings">
+      <h3>Connexions <button id="btn-diag" class="sm">Tester</button></h3>
+      <div id="diag" class="list"></div>
+      <div id="settings" class="list"></div>
+      <h3>Conservation des données</h3>
+      <div id="retention" class="small"></div>
+    </div>
+  </div>
+</div>
 <div id="toast" hidden></div>
 <script src="/static/app.js"></script>
 </body>

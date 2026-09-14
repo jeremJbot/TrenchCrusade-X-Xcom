@@ -33,20 +33,20 @@
   }
   const post = (p, body, extra = {}, retries = 0) => api(p, Object.assign({ method: 'POST', body: body instanceof FormData ? body : JSON.stringify(body || {}) }, extra), retries);
   const patch = (p, body) => api(p, { method: 'PATCH', body: JSON.stringify(body) });
-  function setNet(ok) { const el = $('st-net'); el.textContent = ok ? 'Serveur : connecté' : 'Serveur : injoignable'; el.className = 'pill ' + (ok ? 'ok' : 'err'); }
+  function setNet(ok) { const el = $('st-net'); el.textContent = ok ? 'Connecté' : 'Serveur injoignable'; el.className = 'pill ' + (ok ? 'ok' : 'err'); }
 
   // ------------------------------------------------------------ état global
   async function loadStatus() {
     try { state.status = await api('/api/status'); } catch (e) { return; }
     const s = state.status, cfg = s.settings;
     const m = $('st-model');
-    m.textContent = 'Modèle : ' + (s.llm_ready ? cfg.llm.model + (s.llm_simulated ? ' (SIMULÉ)' : '') : 'non configuré');
+    m.textContent = s.llm_ready ? (s.llm_simulated ? 'Modèle simulé' : 'Modèle prêt') : 'Modèle non configuré';
     m.className = 'pill ' + (s.llm_ready ? (s.llm_simulated ? 'warn' : 'ok') : 'err');
     const i = $('st-index');
-    i.textContent = `Index : ${s.documents.total} doc., ${s.documents.chunks} extraits · recherche ${s.search_mode}`;
+    i.textContent = `${s.documents.total} document${s.documents.total > 1 ? 's' : ''} prêt${s.documents.total > 1 ? 's' : ''}`;
     i.className = 'pill ' + (s.documents.total ? 'ok' : 'warn');
     state.sttProvider = cfg.stt.provider; state.ttsProvider = cfg.tts.provider;
-    $('audio-note').textContent = `Transcription : ${describe(cfg.stt)} · Synthèse : ${describe(cfg.tts)} · L'audio brut n'est pas conservé.`;
+    $('audio-note').textContent = cfg.stt.provider === 'none' ? 'Transcription désactivée : clavier uniquement.' : (cfg.stt.key_configured === false || cfg.tts.key_configured === false) ? 'Clé de transcription ou de synthèse manquante : voir réglages.' : '';
     setSession(s.session);
     renderSettings();
   }
@@ -56,9 +56,10 @@
     state.session = sess;
     const active = !!sess && sess.status === 'active';
     $('btn-session-start').hidden = active; $('btn-session-close').hidden = !active;
-    $('session-info').textContent = active ? `Séance « ${sess.title} » démarrée ${new Date(sess.started_at).toLocaleString('fr-FR')} (id ${sess.id})` : 'Aucune séance active. Démarrer une séance pour activer le micro.';
+    $('session-info').textContent = active ? `Séance « ${sess.title} » ouverte à ${new Date(sess.started_at).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}. Parlez normalement ; dites « Assistant, … » pour lui poser une question.` : 'Démarrez une séance, puis activez le micro.';
+    $('session-title').hidden = active; $('mode-select').hidden = false; if (!active) setIndicator('off');
     if (active) $('mode-select').value = sess.mode;
-    $('st-mode').textContent = 'Mode : ' + ({ dialogue_dirige: 'A. dialogue dirigé', codir_assiste: 'B. CODIR assisté', codir_actif: 'C. CODIR actif (exp.)' }[active ? sess.mode : $('mode-select').value] || '…');
+    $('st-mode').textContent = 'Mode ' + ({ dialogue_dirige: 'dialogue', codir_assiste: 'assisté', codir_actif: 'actif' }[active ? sess.mode : $('mode-select').value] || '…');
     ['btn-mic-start', 'btn-ask', 'btn-listen-text', 'btn-address'].forEach(id => $(id).disabled = !active);
     if (!active && state.micState !== 'stopped') stopMic();
     if (active) { refreshSidePanels(); loadTranscript(); }
@@ -86,7 +87,7 @@
     if (!state.session) return;
     try {
       const utts = await api(`/api/sessions/${state.session.id}/utterances?since_seq=${state.seenSeq}`);
-      for (const u of utts) { if (u.seq <= state.seenSeq) continue; state.seenSeq = u.seq; addMsg(u.kind, u.text, `${u.speaker || (u.kind === 'assistant' ? 'assistant' : 'participant')} · ${new Date(u.ts).toLocaleTimeString('fr-FR')} · ${u.source || ''}`); }
+      for (const u of utts) { if (u.seq <= state.seenSeq) continue; state.seenSeq = u.seq; addMsg(u.kind, u.text, `${u.speaker || (u.kind === 'assistant' ? 'Assistant' : 'Participant')} · ${new Date(u.ts).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}`); }
     } catch {}
   }
 
@@ -106,7 +107,7 @@
     if (state.pendingAsk) { state.pendingAsk.abort(); state.pendingAsk = null; if (state.lastTurnId) post(`/api/turns/${state.lastTurnId}/cancel`).catch(() => {}); }
     stopVoice();
     const ctrl = new AbortController(); state.pendingAsk = ctrl;
-    const wait = addMsg('system', 'L’assistant recherche…');
+    const wait = addMsg('system', 'Je cherche dans vos documents…');
     try {
       const r = await post(`/api/sessions/${state.session.id}/ask`, { text, speaker, source }, { signal: ctrl.signal });
       if (ctrl !== state.pendingAsk) return; // réponse devenue obsolète
@@ -143,18 +144,18 @@
 
   $('ask-form').onsubmit = (e) => { e.preventDefault(); const v = $('ask-input').value; $('ask-input').value = ''; submitText(v, true, 'clavier'); };
   $('btn-listen-text').onclick = () => { const v = $('ask-input').value; $('ask-input').value = ''; submitText(v, false, 'clavier'); };
-  $('btn-address').onclick = () => { state.addressNext = !state.addressNext; $('btn-address').classList.toggle('primary', state.addressNext); $('listen-text').textContent = state.addressNext ? 'Prochain segment adressé à l’assistant' : listenLabel(); };
+  $('btn-address').onclick = () => { state.addressNext = !state.addressNext; $('btn-address').classList.toggle('primary', state.addressNext); $('listen-text').textContent = state.addressNext ? 'Posez votre question' : listenLabel(); };
 
   // ------------------------------------------------------------ sources
+  const libelle = (s) => ({ declare: 'entendu', a_confirmer: 'à confirmer', valide: 'validé', conteste: 'contesté', remplace: 'remplacé', proposee: 'proposée', validee: 'validée', rejetee: 'rejetée', en_cours: 'en cours', terminee: 'terminée', lue: 'lue', reportee: 'reportée', obsolete: 'dépassée', question_adressee: 'question', contradiction: 'contradiction', precision: 'précision', action_incomplete: 'action incomplète', dependance: 'dépendance', clarification: 'clarification' }[s] || s);
   function renderSources(r) {
     const box = $('sources');
-    let html = `<div class="card ${r.simule ? 'simulated' : ''}"><div class="title">Réponse${r.simule ? ' — MODE SIMULÉ (aucune validation réelle)' : ''}</div><div>${esc(r.reponse_ecrite)}</div>
-      <div class="small muted">Modèle : ${esc(r.modele)} · recherche ${esc(r.mode_recherche)} · ${esc(r.controle_references)}</div></div>`;
-    if (!r.sources.length) html += '<p class="muted">Aucune source citée : la réponse ne s’appuie sur aucun extrait retrouvé.</p>';
-    for (const s of r.sources) html += `<div class="card"><div class="title">${esc(s.document)} ${tag(s.statut_document)} <span class="muted small">${esc(s.repere)}${s.version ? ' · version ' + esc(s.version) : ''}${s.date_contenu ? ' · contenu daté ' + esc(s.date_contenu) : ''}</span></div><div class="quote">${esc(s.extrait)}</div><div class="small muted">${esc(s.chunk_id)}</div></div>`;
-    for (const m of r.souvenirs_cites || []) html += `<div class="card"><div class="title">Souvenir ${tag(m.statut)} ${m.a_reexaminer ? tag('à réexaminer', 'review') : ''}</div>${esc(m.contenu)}<div class="small muted">${esc(m.memory_id)}</div></div>`;
+    let html = r.simule ? '<p class="small muted">Réponse simulée : aucun modèle réel n’est configuré.</p>' : '';
+    if (!r.sources.length) html += '<p class="empty">Aucun passage des documents n’a été utilisé pour cette réponse.</p>';
+    for (const s of r.sources) html += `<div class="card src"><div class="title">${esc(s.document)} <span class="muted small">${esc(s.repere)}${s.version ? ' · version ' + esc(s.version) : ''}${s.date_contenu ? ' · ' + esc(s.date_contenu) : ''}</span></div><div class="quote">${esc(s.extrait)}</div>${s.statut_document && s.statut_document !== 'inconnu' ? tag(s.statut_document.replace('_', ' ')) : ''}</div>`;
+    for (const m of r.souvenirs_cites || []) html += `<div class="card mem"><div class="title">Information entendue en séance ${tag(libelle(m.statut), m.statut)} ${m.a_reexaminer ? tag('à réexaminer', 'review') : ''}</div>${esc(m.contenu)}</div>`;
     box.innerHTML = html;
-    if (!$('tab-sources').classList.contains('active')) toast('Sources mises à jour (onglet Sources).');
+    if (!$('tab-sources').classList.contains('active')) toast('Sources affichées à droite.');
   }
 
   // ------------------------------------------------------------ panneaux latéraux
@@ -171,9 +172,9 @@
   function renderInterventions(list) {
     const pending = list.filter(i => i.status === 'proposee' || i.status === 'reportee');
     $('badge-int').textContent = pending.length;
-    $('interventions').innerHTML = list.length ? list.map(i => `<div class="card"><div class="title">${tag(i.status)} ${tag(i.trigger)} <span class="muted small">${new Date(i.ts).toLocaleTimeString('fr-FR')}</span></div>
-      <div>${esc(i.text)}</div><div class="small muted">Motif : ${esc(i.motif)} · Sources : ${i.sources.length ? i.sources.map(esc).join(', ') : 'aucune'}</div>
-      ${pending.includes(i) ? `<div class="actions"><button class="small-btn primary" data-act="lire" data-id="${i.id}">Lire à voix haute</button><button class="small-btn" data-act="reverifier" data-id="${i.id}">Revérifier l’utilité</button><button class="small-btn" data-act="reporter" data-id="${i.id}">Reporter</button><button class="small-btn danger" data-act="rejeter" data-id="${i.id}">Rejeter</button></div>` : ''}</div>`).join('') : '<p class="muted">Aucune intervention proposée.</p>';
+    $('interventions').innerHTML = list.length ? list.map(i => `<div class="card int"><div class="title">${tag(libelle(i.status), i.status)} ${tag(libelle(i.trigger), 'trig')} <span class="muted small">${new Date(i.ts).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</span></div>
+      <div>${esc(i.text)}</div><div class="small muted">${esc(i.motif)}${i.sources.length ? ' · ' + i.sources.length + ' source' + (i.sources.length > 1 ? 's' : '') : ''}</div>
+      ${pending.includes(i) ? `<div class="actions"><button class="small-btn primary" data-act="lire" data-id="${i.id}">Lire à voix haute</button><button class="small-btn ghost" data-act="reverifier" data-id="${i.id}">Encore utile ?</button><button class="small-btn ghost" data-act="reporter" data-id="${i.id}">Plus tard</button><button class="small-btn quiet danger" data-act="rejeter" data-id="${i.id}">Écarter</button></div>` : ''}</div>`).join('') : '<p class="empty">Rien pour l’instant. Les interventions proposées passent par ici avant d’être lues.</p>';
   }
   $('interventions').onclick = async (e) => {
     const b = e.target.closest('button[data-act]'); if (!b) return;
@@ -219,20 +220,20 @@
     refreshSidePanels();
   };
 
-  const srcLabel = (m) => { const r = m.source_ref || {}; if (m.source_type === 'document') return `document ${r.document_id || ''} · extrait ${r.chunk_id || ''}`; if (m.source_type === 'seance') return `séance ${r.session_id || ''} · énoncé ${r.utterance_id || 'n/c'}`; return 'saisie utilisateur'; };
+  const srcLabel = (m) => m.source_type === 'document' ? 'issu d’un document' : m.source_type === 'seance' ? 'entendu en séance le ' + new Date(m.created_at).toLocaleDateString('fr-FR') : 'saisi à la main';
   function renderMemories(list) {
     $('badge-mem').textContent = list.filter(m => m.status === 'declare' || m.status === 'a_confirmer' || m.needs_review).length;
-    $('memories').innerHTML = list.length ? list.map(m => `<div class="card"><div class="title">${tag(m.status)} ${tag(m.type, 'type')} ${m.needs_review ? tag('à réexaminer', 'review') : ''} ${m.dossier ? tag(m.dossier, 'dossier') : ''}</div>
+    $('memories').innerHTML = list.length ? list.map(m => `<div class="card mem"><div class="title">${tag(libelle(m.status), m.status)} ${m.type === 'hypothese' ? tag('hypothèse') : ''} ${m.needs_review ? tag('à réexaminer', 'review') : ''} ${m.dossier ? tag(m.dossier, 'dossier') : ''}</div>
       <div contenteditable="true" data-mem-content="${m.id}">${esc(m.content)}</div>
-      <div class="small muted">Source : ${esc(srcLabel(m))} · auteur : ${esc(m.author || 'non identifié')} · effet : ${esc(m.effective_at || 'n/c')}${m.review_reason ? ' · ' + esc(m.review_reason) : ''}${m.relations && m.relations.length ? ' · relations : ' + esc(m.relations.map(r => r.type + ' ' + r.memory_id).join(', ')) : ''}</div>
-      <div class="actions"><button class="small-btn primary" data-mem="${m.id}" data-st="valide">Valider</button><button class="small-btn" data-mem="${m.id}" data-st="a_confirmer">À confirmer</button><button class="small-btn" data-mem="${m.id}" data-st="conteste">Contester</button><button class="small-btn" data-mem-save="${m.id}">Enregistrer la correction</button><button class="small-btn" data-mem-hist="${m.id}">Historique</button><button class="small-btn danger" data-mem-del="${m.id}">Supprimer</button></div><div class="small muted" data-hist="${m.id}"></div></div>`).join('') : '<p class="muted">Mémoire vide.</p>';
+      <div class="small muted">${esc(srcLabel(m))}${m.author ? ' · ' + esc(m.author) : ''}${m.effective_at ? ' · effet ' + esc(m.effective_at) : ''}${m.review_reason ? ' · ' + esc(m.review_reason) : ''}${m.relations && m.relations.length ? ' · ' + esc(m.relations.map(r => r.type === 'contredit' ? 'contredit une information antérieure' : r.type === 'remplace' ? 'remplace une information antérieure' : 'précise une information antérieure').join(', ')) : ''}</div>
+      <div class="actions">${m.status !== 'valide' ? `<button class="small-btn primary" data-mem="${m.id}" data-st="valide">Valider</button>` : ''}${m.status !== 'a_confirmer' ? `<button class="small-btn ghost" data-mem="${m.id}" data-st="a_confirmer">À confirmer</button>` : ''}${m.status !== 'conteste' ? `<button class="small-btn ghost" data-mem="${m.id}" data-st="conteste">Contester</button>` : ''}<button class="small-btn ghost" data-mem-save="${m.id}">Enregistrer la correction</button><button class="small-btn quiet" data-mem-hist="${m.id}">Historique</button><button class="small-btn quiet danger" data-mem-del="${m.id}">Supprimer</button></div><div class="small muted" data-hist="${m.id}"></div></div>`).join('') : '<p class="empty">Rien à valider. Les informations entendues en séance apparaîtront ici.</p>';
   }
   $('memories').onclick = async (e) => {
     const b = e.target.closest('button'); if (!b) return;
     try {
       if (b.dataset.mem) await post(`/api/memories/${b.dataset.mem}/status`, { status: b.dataset.st, motif: 'Validation dans l’interface' });
       else if (b.dataset.memSave) { const content = document.querySelector(`[data-mem-content="${b.dataset.memSave}"]`).innerText.trim(); await patch(`/api/memories/${b.dataset.memSave}`, { content, motif: 'Correction dans l’interface' }); toast('Correction historisée.'); }
-      else if (b.dataset.memHist) { const h = await api(`/api/memories/${b.dataset.memHist}/history`); document.querySelector(`[data-hist="${b.dataset.memHist}"]`).textContent = h.map(x => `${x.ts} ${x.actor} ${JSON.stringify(x.change)}`).join('\n'); return; }
+      else if (b.dataset.memHist) { const h = await api(`/api/memories/${b.dataset.memHist}/history`); document.querySelector(`[data-hist="${b.dataset.memHist}"]`).textContent = h.map(x => `${new Date(x.ts).toLocaleString('fr-FR')} · ${x.actor} · ${x.change.creation ? 'création' : x.change.suppression ? 'suppression' : x.change.apres ? 'modification : ' + Object.entries(x.change.apres).map(([k, v]) => k + ' → ' + v).join(', ') : x.change.motif || ''}${x.change.motif && x.change.apres ? ' (' + x.change.motif + ')' : ''}`).join('\n'); return; }
       else if (b.dataset.memDel) { if (!confirm('Supprimer ce souvenir ?')) return; await api(`/api/memories/${b.dataset.memDel}`, { method: 'DELETE' }); }
       refreshSidePanels();
     } catch (err) { toast(err.message, true); }
@@ -241,16 +242,16 @@
   $('mem-form').onsubmit = async (e) => { e.preventDefault(); if (!$('mem-content').value.trim()) return; await post('/api/memories', { content: $('mem-content').value, dossier: $('mem-dossier').value || null, type: 'fait', status: 'declare' }); $('mem-content').value = ''; refreshSidePanels(); };
 
   function renderDecisions(list) {
-    $('badge-dec').textContent = list.filter(d => d.status === 'proposee').length + '/' + (state._actPending || 0);
-    $('decisions').innerHTML = list.length ? list.map(d => `<div class="card"><div class="title">${tag(d.status)} ${d.dossier ? tag(d.dossier, 'dossier') : ''} <span class="muted small">proposée par ${esc(d.proposed_by)}</span></div><div>${esc(d.objet)}</div>
-      <div class="actions">${d.status !== 'validee' ? `<button class="small-btn primary" data-dec="${d.id}" data-st="validee">Valider la décision</button>` : ''}${d.status !== 'rejetee' ? `<button class="small-btn danger" data-dec="${d.id}" data-st="rejetee">Rejeter</button>` : ''}</div></div>`).join('') : '<p class="muted">Aucune décision.</p>';
+    $('badge-dec').textContent = list.filter(d => d.status === 'proposee').length + (state._actPending || 0);
+    $('decisions').innerHTML = list.length ? list.map(d => `<div class="card dec"><div class="title">${tag(libelle(d.status), d.status)} ${d.dossier ? tag(d.dossier, 'dossier') : ''}</div><div>${esc(d.objet)}</div>
+      <div class="actions">${d.status !== 'validee' ? `<button class="small-btn primary" data-dec="${d.id}" data-st="validee">Valider la décision</button>` : ''}${d.status !== 'rejetee' ? `<button class="small-btn danger" data-dec="${d.id}" data-st="rejetee">Rejeter</button>` : ''}</div></div>`).join('') : '<p class="empty">Aucune décision proposée.</p>';
   }
   function renderActions(list) {
     state._actPending = list.filter(a => a.status === 'proposee').length;
-    $('badge-dec').textContent = ($('decisions').querySelectorAll('.tag.proposee').length) + '/' + state._actPending;
-    $('actions').innerHTML = list.length ? list.map(a => `<div class="card"><div class="title">${tag(a.status)} ${(a.champs_manquants || []).map(f => tag(f + ' manquant', 'missing')).join('')}</div><div>${esc(a.objet)}</div>
+    $('badge-dec').textContent = ($('decisions').querySelectorAll('.tag.proposee').length) + state._actPending;
+    $('actions').innerHTML = list.length ? list.map(a => `<div class="card act"><div class="title">${tag(libelle(a.status), a.status)} ${(a.champs_manquants || []).filter(f => f !== 'dossier').map(f => tag((f === 'echeance' ? 'échéance' : f) + ' ?', 'missing')).join('')}</div><div>${esc(a.objet)}</div>
       <div class="row small"><label>Responsable <input data-act-field="responsable" data-id="${a.id}" value="${esc(a.responsable || '')}" size="12"></label><label>Échéance <input data-act-field="echeance" data-id="${a.id}" value="${esc(a.echeance || '')}" size="10"></label><label>Dossier <input data-act-field="dossier" data-id="${a.id}" value="${esc(a.dossier || '')}" size="10"></label></div>
-      <div class="actions"><button class="small-btn" data-act-save="${a.id}">Enregistrer</button>${a.status === 'proposee' ? `<button class="small-btn primary" data-act-st="${a.id}" data-st="validee">Valider l’action</button><button class="small-btn danger" data-act-st="${a.id}" data-st="rejetee">Rejeter</button>` : ''}${a.status === 'validee' ? `<button class="small-btn" data-act-st="${a.id}" data-st="terminee">Terminée</button>` : ''}</div></div>`).join('') : '<p class="muted">Aucune action.</p>';
+      <div class="actions"><button class="small-btn" data-act-save="${a.id}">Enregistrer</button>${a.status === 'proposee' ? `<button class="small-btn primary" data-act-st="${a.id}" data-st="validee">Valider l’action</button><button class="small-btn danger" data-act-st="${a.id}" data-st="rejetee">Rejeter</button>` : ''}${a.status === 'validee' ? `<button class="small-btn" data-act-st="${a.id}" data-st="terminee">Terminée</button>` : ''}</div></div>`).join('') : '<p class="empty">Aucune action proposée.</p>';
   }
   const actFields = (id) => { const o = {}; document.querySelectorAll(`[data-act-field][data-id="${id}"]`).forEach(i => o[i.dataset.actField] = i.value); return o; };
   $('tab-decisions').onclick = async (e) => {
@@ -270,16 +271,17 @@
   // ------------------------------------------------------------ documents
   async function loadDocuments() {
     const d = await api('/api/documents');
-    $('docs-dir').textContent = `Répertoire : ${d.docs_dir} · formats : ${d.formats.join(', ')} · PDF image → OCR requis (non pris en charge en V1)`;
-    $('documents').innerHTML = d.documents.length ? d.documents.map(doc => `<div class="card"><div class="title">${esc(doc.name)} ${tag(doc.index_state)} ${tag(doc.doc_status)}</div>
-      <div class="small muted">${doc.chunk_count} extrait(s) · empreinte ${esc((doc.sha256 || '').slice(0, 12))} · import ${esc(doc.imported_at)} · fichier modifié ${esc(doc.file_modified_at || 'n/c')}${doc.index_error ? ' · ' + esc(doc.index_error) : ''}${doc.deleted_at ? ' · supprimé du répertoire le ' + esc(doc.deleted_at) : ''}</div>
-      ${doc.deleted_at ? '' : `<div class="row small"><select data-doc-status="${doc.id}">${['inconnu', 'reference_validee', 'document_de_travail', 'archive'].map(s => `<option value="${s}" ${doc.doc_status === s ? 'selected' : ''}>${s}</option>`).join('')}</select>
-      <input placeholder="Version" data-doc-version="${doc.id}" value="${esc(doc.version_label || '')}" size="8"><input placeholder="Date du contenu" data-doc-date="${doc.id}" value="${esc(doc.content_date || '')}" size="12"><button class="small-btn" data-doc-save="${doc.id}">Enregistrer</button><button class="small-btn" data-doc-view="${doc.id}">Extraits</button></div>`}<pre class="minutes small" data-doc-chunks="${doc.id}" hidden></pre></div>`).join('') : '<p class="muted">Aucun document. Déposer des fichiers dans le répertoire puis « Actualiser ».</p>';
+    $('docs-dir').textContent = `Dossier surveillé : ${d.docs_dir} · formats acceptés : ${d.formats.join(', ')}`;
+    const etat = (doc) => ({ indexe: 'Prêt', vide: 'Vide', ocr_requis: 'Texte illisible : OCR nécessaire', non_supporte: 'Format non pris en charge', erreur: 'Erreur de lecture', supprime: 'Retiré du dossier' }[doc.index_state] || doc.index_state);
+    $('documents').innerHTML = d.documents.length ? d.documents.map(doc => `<div class="card src"><div class="title">${esc(doc.name)} ${tag(etat(doc), doc.index_state)}</div>
+      <div class="small muted">${doc.chunk_count ? doc.chunk_count + ' passages · ' : ''}ajouté le ${new Date(doc.imported_at).toLocaleDateString('fr-FR')}${doc.index_error && doc.index_state !== 'ocr_requis' && doc.index_state !== 'non_supporte' ? ' · ' + esc(doc.index_error) : ''}</div>
+      ${doc.deleted_at ? '' : `<div class="row small"><select data-doc-status="${doc.id}" class="sm">${[['inconnu', 'Statut à préciser'], ['reference_validee', 'Référence validée'], ['document_de_travail', 'Document de travail'], ['archive', 'Archive']].map(([s, l]) => `<option value="${s}" ${doc.doc_status === s ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      <input placeholder="Version" data-doc-version="${doc.id}" value="${esc(doc.version_label || '')}" size="8"><input placeholder="Date du contenu" data-doc-date="${doc.id}" value="${esc(doc.content_date || '')}" size="12"><button class="small-btn" data-doc-save="${doc.id}">Enregistrer</button><button class="small-btn quiet" data-doc-view="${doc.id}">Voir le texte</button></div>`}<pre class="minutes small" data-doc-chunks="${doc.id}" hidden></pre></div>`).join('') : '<p class="empty">Aucun document. Déposez vos fichiers puis cliquez sur Actualiser.</p>';
   }
   $('documents').onclick = async (e) => {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.docSave) { const id = b.dataset.docSave; await patch(`/api/documents/${id}`, { doc_status: document.querySelector(`[data-doc-status="${id}"]`).value, version_label: document.querySelector(`[data-doc-version="${id}"]`).value, content_date: document.querySelector(`[data-doc-date="${id}"]`).value }); toast('Métadonnées enregistrées.'); loadDocuments(); }
-    if (b.dataset.docView) { const r = await api(`/api/documents/${b.dataset.docView}/chunks`); const pre = document.querySelector(`[data-doc-chunks="${b.dataset.docView}"]`); pre.hidden = !pre.hidden; pre.textContent = r.chunks.map(c => `[${c.id}] ${c.page ? 'page ' + c.page : (c.section ? 'section « ' + c.section + '» ' : '') + (c.paragraph_ref || '')}\n${c.text}\n`).join('\n'); }
+    if (b.dataset.docView) { const r = await api(`/api/documents/${b.dataset.docView}/chunks`); const pre = document.querySelector(`[data-doc-chunks="${b.dataset.docView}"]`); pre.hidden = !pre.hidden; pre.textContent = r.chunks.map(c => `— ${c.page ? 'page ' + c.page : (c.section ? c.section + ' ' : '') + (c.paragraph_ref || '')}\n${c.text}\n`).join('\n'); }
   };
   $('btn-refresh-docs').onclick = async () => { const r = await post('/api/documents/refresh'); toast(`Actualisation : ${r.indexed.length} indexé(s), ${r.unchanged.length} inchangé(s), ${r.unusable.length} inexploitable(s), ${r.removed.length} supprimé(s)` + (r.reviews.length ? `, ${r.reviews.length} souvenir(s) à réexaminer` : '')); loadDocuments(); loadStatus(); };
   $('file-input').onchange = async () => {
@@ -291,18 +293,22 @@
   function renderSettings() {
     const c = state.status.settings, pe = state.status.provider_errors || {};
     const kv = (o) => Object.entries(o).map(([k, v]) => `<div>${esc(k)}</div><div>${esc(typeof v === 'object' ? JSON.stringify(v) : v)}</div>`).join('');
-    $('settings').innerHTML = `<div class="kv">${kv({ 'Serveur': `${c.host}:${c.port} (local uniquement)`, 'Répertoire documents': c.docs_dir, 'Modèle': c.llm, 'Transcription': c.stt, 'Synthèse': c.tts, 'Embeddings': c.embeddings, 'Interventions': c.intervention, 'Erreurs de configuration': Object.keys(pe).length ? pe : 'aucune' })}</div><p class="small muted">Les clés sont lues côté serveur depuis le fichier .env et ne sont jamais transmises au navigateur.</p>`;
+    const prov = (p, what) => p.provider === 'none' ? 'désactivée' : p.provider === 'browser' ? 'navigateur' : `${p.model || what}${p.key_configured === false ? ' · clé manquante' : ''}`;
+    $('settings').innerHTML = `<div class="kv">${kv({ 'Modèle': c.llm.simulated ? 'simulé (démonstration)' : c.llm.model + (c.llm.key_configured === false ? ' · clé manquante' : ''), 'Transcription': prov(c.stt, 'transcription'), 'Synthèse vocale': prov(c.tts, 'synthèse'), 'Recherche': c.embeddings.provider === 'none' ? 'par mots-clés' : 'mots-clés + sémantique', 'Interventions': `au plus une toutes les ${c.intervention.min_delay_s} s`, 'Adresse': `${c.host}:${c.port} (ce poste uniquement)` })}</div>${Object.keys(pe).length ? `<p class="small" style="color:var(--err)">${esc(Object.values(pe).join(' · '))}</p>` : ''}<p class="small muted">Les clés se règlent dans le fichier .env du dossier de l’application et ne quittent jamais ce poste.</p>`;
     $('retention').innerHTML = `<div class="kv">${kv(c.retention)}</div>`;
   }
-  $('btn-diag').onclick = async () => { $('diag').innerHTML = '<p class="muted">Test en cours…</p>'; const d = await post('/api/diagnostics'); $('diag').innerHTML = Object.entries(d).map(([k, v]) => `<div class="card"><b>${esc(k)}</b> ${tag(v.ok ? 'ok' : 'échec', v.ok ? 'valide' : 'erreur')} <span class="small">${esc(v.detail)}</span></div>`).join(''); };
+  $('btn-diag').onclick = async () => { $('diag').innerHTML = '<p class="muted">Test en cours…</p>'; const d = await post('/api/diagnostics'); const noms = { llm: 'Modèle', stt: 'Transcription', tts: 'Synthèse vocale', embeddings: 'Recherche sémantique', base: 'Base locale' }; $('diag').innerHTML = Object.entries(d).map(([k, v]) => `<div class="card"><div class="title">${esc(noms[k] || k)} ${tag(v.ok ? 'ok' : 'échec', v.ok ? 'valide' : 'erreur')}</div><span class="small muted">${esc(v.detail)}</span></div>`).join(''); };
 
   // ------------------------------------------------------------ onglets
-  document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('#tabs button, .tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); $('tab-' + b.dataset.tab).classList.add('active'); if (b.dataset.tab === 'documents') loadDocuments(); });
+  document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('#tabs button, main .tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); $('tab-' + b.dataset.tab).classList.add('active'); });
+  $('btn-drawer').onclick = () => { $('drawer').classList.add('open'); loadDocuments(); };
+  $('btn-drawer-close').onclick = () => $('drawer').classList.remove('open');
+  $('drawer').onclick = (e) => { if (e.target === $('drawer')) $('drawer').classList.remove('open'); };
 
   // ------------------------------------------------------------ AUDIO : capture
   const audio = { stream: null, ctx: null, analyser: null, recorder: null, chunks: [], speech: false, speechStart: 0, silenceSince: 0, noise: 0.01, raf: null, recog: null, partialEl: null, mime: '' };
-  const listenLabel = () => state.micState === 'listening' ? (state.speaking ? 'Assistant en train de parler (micro ignoré)' : 'Écoute active — en attente de parole') : state.micState === 'paused' ? 'Micro suspendu (aucun envoi)' : 'Écoute inactive';
-  function setIndicator(cls) { const el = $('listen-indicator'); el.className = 'indicator ' + cls; $('listen-text').textContent = state.addressNext ? 'Prochain segment adressé à l’assistant' : listenLabel(); const p = $('st-audio'); p.textContent = 'Micro : ' + ({ listening: 'écoute', speech: 'parole détectée', paused: 'suspendu', off: 'arrêté', speaking: 'voix assistant' }[cls] || cls); p.className = 'pill ' + (cls === 'off' ? '' : cls === 'paused' ? 'warn' : 'ok'); }
+  const listenLabel = () => state.micState === 'listening' ? (state.speaking ? 'Je réponds' : 'Je vous écoute') : state.micState === 'paused' ? 'Micro en pause' : (state.session && state.session.status === 'active' ? 'Séance ouverte' : 'Prêt pour la séance');
+  function setIndicator(cls) { const el = $('listen-indicator'); el.className = 'orb indicator ' + cls; $('listen-text').textContent = state.addressNext ? 'Posez votre question' : listenLabel(); const p = $('st-audio'); p.textContent = ({ listening: 'Micro actif', speech: 'Parole détectée', paused: 'Micro en pause', off: 'Micro arrêté', speaking: 'Assistant parle' }[cls] || cls); p.className = 'pill ' + (cls === 'off' ? '' : cls === 'paused' ? 'warn' : 'ok'); }
   function micButtons() { const s = state.micState; $('btn-mic-start').disabled = s !== 'stopped' || !state.session; $('btn-mic-pause').disabled = s !== 'listening'; $('btn-mic-pause').hidden = s === 'paused'; $('btn-mic-resume').hidden = s !== 'paused'; $('btn-mic-resume').disabled = s !== 'paused'; $('btn-mic-stop').disabled = s === 'stopped'; }
 
   async function startMic() {
